@@ -6,7 +6,7 @@ import (
 )
 
 func createTables(db *sql.DB) error {
-	content, err := ioutil.ReadFile("create_tables.sql")
+	content, err := ioutil.ReadFile("migrations/create_tables.sql")
 	if err != nil {
 		return err
 	}

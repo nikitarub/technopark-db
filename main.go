@@ -3,6 +3,8 @@ package main
 import (
 	"database/sql"
 	"log"
+
+	"github.com/Ermako27/technopark-db/dbutils"
 )
 
 func main() {
