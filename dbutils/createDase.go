@@ -1,4 +1,4 @@
-package dbcommands
+package dbutils
 
 import (
 	"database/sql"

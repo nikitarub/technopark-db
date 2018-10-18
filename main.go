@@ -8,7 +8,7 @@ import (
 func main() {
 	db, err := sql.Open("postgres", "user=docker password=docker1828 dbname=docker sslmode=disable")
 
-	err = createTables(db)
+	err = dbutils.createTables(db)
 	if err != nil {
 		log.Fatal(err)
 	}
