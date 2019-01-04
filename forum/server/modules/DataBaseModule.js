@@ -1,4 +1,4 @@
-const pgp = require('pg-promise')();
+export const pgp = require('pg-promise')();
 
 const dbOptions = {
     host: 'localhost',
