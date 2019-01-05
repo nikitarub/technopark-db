@@ -6,7 +6,7 @@ class UserController {
     createUser (req, res) {
         const nickname = req.params['nickname'];
         const email = req.body['email'];
-        console.log(req.path);
+        // console.log(req.path);
         
         // console.log(req.body['fullname'],
         // req.body['about'],
@@ -28,6 +28,7 @@ class UserController {
                             return res.status(201).json(data);
                         })
                         .catch( error => {
+                            console.log('--------------------------------------------');
                             console.log('ERROR IN CREATING');
                             console.log(error);
                         });
@@ -37,6 +38,8 @@ class UserController {
                 }
             })
             .catch( error => {
+                console.log('--------------------------------------------');
+
                 console.log('ERROR IN GETTING USER BY NICK OR EMAIL');
                 console.log(error);
                 return res.status(500).json({ message : "crash" })
@@ -53,6 +56,7 @@ class UserController {
                 return res.status(404).json({ message : "Can't find user" })
             })
             .catch( error => {
+                console.log('--------------------------------------------');
                 console.log('ERROR IN GETTING USER BY NICK');
                 console.log(error);
                 return res.status(500).json({ message : "crash" })
@@ -71,6 +75,7 @@ class UserController {
                 }                
             })
             .catch( error => {
+                console.log('--------------------------------------------');
                 console.log('ERROR IN GETTING USER BY NICK');
                 console.log(error);
                 return res.status(500).json({ message : "crash" })
@@ -85,6 +90,7 @@ class UserController {
                         return res.status(200).json(user);             
                     })
                     .catch( error => {
+                        console.log('--------------------------------------------');
                         console.log('ERROR IN GETTING USER BY NICK');
                         console.log(error);
                         return res.status(500).json({ message : "crash" })
@@ -93,15 +99,16 @@ class UserController {
                 UserModel.getUserByNicknameOrEmail(newData['nickname'], newData['email'])
                     .then( data => {
                         if (data.length === 0) {
-                            console.log(nickname);
-                            console.log(columns);
-                            console.log(keyValues);
+                            // console.log(nickname);
+                            // console.log(columns);
+                            // console.log(keyValues);
 
                             UserModel.updateUser(nickname,columns,keyValues)
                                 .then(user => {
                                     return res.status(200).json(user);
                                 })
                                 .catch( error => {
+                                    console.log('--------------------------------------------');
                                     console.log('ERROR IN UPDATING USER');
                                     console.log(error);
                                     return res.status(500).json({ message : "crash" })  
@@ -119,6 +126,7 @@ class UserController {
                     return res.status(200).json(user);
                 })
                 .catch( error => {
+                    console.log('--------------------------------------------');
                     console.log('ERROR IN GETTING USER BY NICK');
                     console.log(error);
                     return res.status(500).json({ message : "crash" })
