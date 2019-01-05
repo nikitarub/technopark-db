@@ -5,28 +5,35 @@ import { harvestColumns, harvestKeyValues } from '../utils.js'
 class UserController {
     createUser (req, res) {
         const nickname = req.params['nickname'];
-        const email = req.query['email'];
+        const email = req.body['email'];
+        console.log(req.path);
+        
+        // console.log(req.body['fullname'],
+        // req.body['about'],
+        // req.body['email']);
         UserModel.getUserByNicknameOrEmail(nickname, email)
             .then( data => {
                 // console.log('users', data.length);
                 if (data.length === 0) {
                     const newUserData = [
                         nickname,
-                        req.query['fullname'],
-                        req.query['about'],
-                        req.query['email']
+                        req.body['fullname'],
+                        req.body['about'],
+                        req.body['email']
                     ];
-                    console.log('newUserData', newUserData);
+                    // console.log('newUserData', newUserData);
+                    // console.log('--------------------------------------------');
                     UserModel.createNewUser(newUserData)
                         .then( data => {
                             return res.status(201).json(data);
                         })
-                        this  .catch( error => {
+                        .catch( error => {
                             console.log('ERROR IN CREATING');
                             console.log(error);
                         });
                 } else {
-                    return res.status(409).json({ message : "User with such nickname or email already exists" });
+                    // console.log(data);
+                    return res.status(409).json(data);
                 }
             })
             .catch( error => {
@@ -54,7 +61,7 @@ class UserController {
     
     updateUser (req, res) {
         const nickname = req.params['nickname'];
-        const newData = req.query;
+        const newData = req.body;
         // console.log(Object.values(newData));
 
         UserModel.getUserByNickname(nickname) // существует ли пользователь
