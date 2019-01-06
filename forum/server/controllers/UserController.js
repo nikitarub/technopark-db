@@ -117,6 +117,12 @@ class UserController {
                             return res.status(409).json({ message : "User with such nickname or email already exists" });
                         }
                     })
+                    .catch( error => {
+                        console.log('--------------------------------------------');
+                        console.log('ERROR IN GETTING USER BY NICKNAME OR EMAIL');
+                        console.log(error);
+                        return res.status(500).json({ message : "crash" })
+                    });
             }
 
 

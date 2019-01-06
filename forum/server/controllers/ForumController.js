@@ -1,7 +1,8 @@
 import ForumModel from '../models/ForumModel.js';
 import UserModel from '../models/UserModel.js';
 import ThreadModel from '../models/ThreadModel.js';
-import { harvestValues, harvestColumns, harvestKeyValues } from '../utils.js';
+import { harvestValues, harvestColumns, harvestKeyValues, idToInt } from '../utils.js';
+import { parse } from 'url';
 
 
 
@@ -167,6 +168,42 @@ class ForumController {
 			.catch( error => {
 				console.log('--------------------------------------------');
 				console.log('ERROR IN CREATING THREAD');
+				console.log(error);
+				return res.status(500).json({ message : "crash" })
+			});	
+	}
+
+	getThreads (req, res) {
+		const slug = req.params['slug'];
+		const queryParams = harvestKeyValues(req.query);
+		if (!queryParams['limit']) {
+			queryParams['limit'] = 10
+		} else {
+			queryParams['limit'] = parseInt(queryParams['limit']);
+		}
+		ForumModel.getForumSlug(slug)
+			.then( data => {
+				if (data){
+					ThreadModel.getThreadsByForumSlug(slug, queryParams)
+						.then( data =>{
+							if (data) {
+								data = idToInt(data);
+								return res.status(200).json(data);
+							}
+						})
+						.catch( error => {
+							console.log('--------------------------------------------');
+							console.log('ERROR IN GETTING THREADS OF FORUM');
+							console.log(error);
+							return res.status(500).json({ message : "crash" })
+						});	
+				} else {
+					return res.status(404).json({ message : "Can't find forum" });
+				}
+			})
+			.catch( error => {
+				console.log('--------------------------------------------');
+				console.log('ERROR IN GETTING FORUM BY SLUG');
 				console.log(error);
 				return res.status(500).json({ message : "crash" })
 			});	

@@ -28,3 +28,10 @@ export const harvestKeyValues = function (data) {
     }
     return keyValues;
 }
+
+export const idToInt = function (data) {
+    for (let i = 0; i < data.length; i++) {
+        data[i].id = parseInt(data[i].id);
+    }
+    return data;
+}

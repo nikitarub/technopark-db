@@ -29,6 +29,34 @@ class ThreadModel {
     getThreadBySlug (slug) {
         return dbInstance.oneOrNone('SELECT * FROM threads WHERE slug=$1', [slug])
     }
+
+    getThreadsByForumSlug (forumSlug, queryParams) {
+        queryParams.desc = queryParams.desc === 'true'
+        if (queryParams.since && !queryParams.desc) {
+            return dbInstance.manyOrNone('SELECT * FROM threads WHERE forum=$1 AND "created">=$2 ORDER BY $3:raw LIMIT $4', 
+            [
+                forumSlug,
+                queryParams.since,
+                (queryParams.desc ? '"created" DESC' : '"created" ASC'),
+                queryParams.limit
+            ]);
+        } else if (queryParams.since && queryParams.desc) {
+            return dbInstance.manyOrNone('SELECT * FROM threads WHERE forum=$1 AND "created"<=$2 ORDER BY $3:raw LIMIT $4', 
+            [
+                forumSlug,
+                queryParams.since,
+                (queryParams.desc ? '"created" DESC' : '"created" ASC'),
+                queryParams.limit
+            ]);
+        } else if (!queryParams.since) {
+            return dbInstance.manyOrNone('SELECT * FROM threads WHERE forum=$1 ORDER BY $2:raw LIMIT $3', 
+            [
+                forumSlug,
+                (queryParams.desc ? '"created" DESC' : '"created" ASC'),
+                queryParams.limit
+            ]);
+        }
+    }
 }
 
 export default new ThreadModel;

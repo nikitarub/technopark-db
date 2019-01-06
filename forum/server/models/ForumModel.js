@@ -15,7 +15,7 @@ class ForumModel {
     }
 
     createForumUserPair(forumSlug, nickname) {
-        return dbInstance.one('INSERT INTO forumusers (forumslug, usernickname) VALUES ($1, $2) ON CONFLICT DO NOTHING RETURNING *', [forumSlug,nickname]); 
+        return dbInstance.oneOrNone('INSERT INTO forumusers (forumslug, usernickname) VALUES ($1, $2) ON CONFLICT DO NOTHING RETURNING *', [forumSlug,nickname]); 
     }
 
     incrementThreads(slug) {
