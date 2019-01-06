@@ -32,6 +32,8 @@ class UserModel {
     getUserNickname (nickname) {
         return dbInstance.oneOrNone('SELECT nickname FROM users WHERE nickname=$1', [nickname])
     }
+
+
 } 
 
 export default new UserModel;
