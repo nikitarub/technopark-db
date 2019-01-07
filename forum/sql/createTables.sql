@@ -4,7 +4,8 @@ DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS forums CASCADE;
 DROP TABLE IF EXISTS threads CASCADE;
 DROP TABLE IF EXISTS forumusers CASCADE;
-
+DROP TABLE IF EXISTS votes CASCADE;
+DROP TABLE IF EXISTS posts CASCADE;
 
 CREATE TABLE IF NOT EXISTS users (
 	nickname CITEXT 	NOT NULL PRIMARY KEY,
@@ -37,3 +38,22 @@ CREATE TABLE IF NOT EXISTS forumusers (
 	usernickname         CITEXT     NOT NULL UNIQUE REFERENCES users (nickname)
 );
 
+CREATE TABLE IF NOT EXISTS posts (
+	author			CITEXT					 NOT NULL REFERENCES users (nickname), --
+	"created"  	    TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(), --		
+	forum			CITEXT					 NOT NULL REFERENCES forums (slug), --
+	id				BIGSERIAL				 NOT NULL PRIMARY KEY, --
+	isEdited		BOOLEAN					 NOT NULL DEFAULT FALSE, --
+	"message"		VARCHAR					 NOT NULL, --
+	parent 			BIGINT					 REFERENCES posts (id), --
+	thread			BIGINT					 NOT NULL REFERENCES threads (id) -- 
+);
+
+CREATE TABLE IF NOT EXISTS votes (
+	voice            SMALLINT   NOT NULL,
+	thread         	 BIGINT     NOT NULL REFERENCES threads (id),
+	nickname		 CITEXT		NOT NULL REFERENCES users (nickname)
+);
+
+ALTER TABLE votes 
+ADD CONSTRAINT uniqueThreadNickname UNIQUE(nickname, thread)

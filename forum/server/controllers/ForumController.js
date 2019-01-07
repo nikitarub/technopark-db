@@ -81,6 +81,7 @@ class ForumController {
 	createThreadInForum (req, res) {
 		let author = req.body['author'];
 		let forumSlug = req.params['slug'];
+		console.log('FORUM 111', forumSlug);
 		//  есть ли пользователь с таким ником
 		UserModel.getUserNickname(author)
 			.then( data => {
@@ -102,6 +103,65 @@ class ForumController {
 			.then( data => {
 				if (data) {
 					forumSlug = data.slug;
+					// существует ли ветка с таким название, если да то 409
+					ThreadModel.getThreadBySlug(req.body['slug'])
+						.then( thread => {
+							if (!thread) {
+								const keyValues = harvestKeyValues(req.body);
+								keyValues['author'] = author;
+								keyValues['forum'] = forumSlug;
+								const columns = harvestColumns(keyValues);
+								for (let i = 0; i < columns.length; i++) {
+									if (columns[i] === 'message' || columns[i] === 'created') {
+										columns[i] = '"' + columns[i] + '"';
+									}
+								}
+								const values = harvestValues(keyValues);
+								ThreadModel.createNewThread(columns, values)
+									.then( newThread => {
+						
+										ForumModel.createForumUserPair(forumSlug, author)
+											.then( () => {
+												console.log('pair created');
+											})
+											.catch( error => {
+												console.log('--------------------------------------------');
+												console.log('ERROR IN creating pair');
+												console.log(error);
+												return res.status(500).json({ message : "crash" })
+											});
+						
+										ForumModel.incrementThreads(forumSlug)
+											.then( () => {
+												newThread.id = parseInt(newThread.id); // pg-promise считает BIGSERIAL строкой хз почему
+												return res.status(201).json(newThread);
+											})
+											.catch( error => {
+												console.log('--------------------------------------------');
+												console.log('ERROR IN threads increment');
+												console.log(error);
+												return res.status(500).json({ message : "crash" })
+											});
+										
+									})
+									.catch( error => {
+										console.log('--------------------------------------------');
+										console.log('ERROR IN CREATING THREAD');
+										console.log(error);
+										return res.status(500).json({ message : "crash" })
+									});	
+							} else {
+								thread.id = parseInt(thread.id); // pg-promise считает BIGSERIAL строкой хз почему
+								return res.status(409).json(thread);
+							}
+						})
+						.catch( error => {
+							console.log('--------------------------------------------');
+							console.log('ERROR IN GETTING USER BY NICK');
+							console.log(error);
+							return res.status(500).json({ message : "crash" })
+						});
+
 				} else {
 					return res.status(404).json({ message : "Can't find forum" });
 				}
@@ -112,65 +172,6 @@ class ForumController {
 				console.log(error);
 				return res.status(500).json({ message : "crash" })
 			});
-
-		// существует ли ветка с таким название, если да то 409
-		ThreadModel.getThreadBySlug(req.body['slug'])
-			.then( data => {
-				if (data) {
-					return res.status(409).json(data);
-				}
-			})
-			.catch( error => {
-				console.log('--------------------------------------------');
-				console.log('ERROR IN GETTING USER BY NICK');
-				console.log(error);
-				return res.status(500).json({ message : "crash" })
-			});
-		
-		// создаем ветку
-		const keyValues = harvestKeyValues(req.body);
-		keyValues['author'] = author;
-		keyValues['forum'] = forumSlug;
-		const columns = harvestColumns(req.body);
-		for (let i = 0; i < columns.length; i++) {
-			if (columns[i] === 'message' || columns[i] === 'created') {
-				columns[i] = '"' + columns[i] + '"';
-			}
-		}
-		const values = harvestValues(req.body);
-		ThreadModel.createNewThread(columns, values)
-			.then( data => {
-
-				ForumModel.createForumUserPair(forumSlug, author)
-					.then( () => {
-						console.log('pair created');
-					})
-					.catch( error => {
-						console.log('--------------------------------------------');
-						console.log('ERROR IN creating pair');
-						console.log(error);
-						return res.status(500).json({ message : "crash" })
-					});
-
-				ForumModel.incrementThreads(forumSlug)
-					.then( () => {
-						data.id = parseInt(data.id); // pg-promise считает BIGSERIAL строкой хз почему
-						return res.status(201).json(data);
-					})
-					.catch( error => {
-						console.log('--------------------------------------------');
-						console.log('ERROR IN threads increment');
-						console.log(error);
-						return res.status(500).json({ message : "crash" })
-					});
-				
-			})
-			.catch( error => {
-				console.log('--------------------------------------------');
-				console.log('ERROR IN CREATING THREAD');
-				console.log(error);
-				return res.status(500).json({ message : "crash" })
-			});	
 	}
 
 	getThreads (req, res) {

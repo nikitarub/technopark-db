@@ -21,6 +21,10 @@ class ForumModel {
     incrementThreads(slug) {
         return dbInstance.one('UPDATE forums SET threads = threads + 1 WHERE slug=$1 RETURNING *', [slug]);
     }
+
+    incrementPosts(slug) {
+        return dbInstance.one('UPDATE forums SET posts = posts + 1 WHERE slug=$1 RETURNING *', [slug]);
+    }
 }
 
 export default new ForumModel; 

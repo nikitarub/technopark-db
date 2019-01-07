@@ -1,7 +1,7 @@
 import express from 'express';
 import userRouter from './routers/UserRoutes.js';
 import forumRouter from './routers/ForumRoutes.js';
-
+import threadRouter from './routers/ThreadRoutes.js';
 
 const app = express();
 
@@ -9,6 +9,7 @@ app.use(express.json());
 
 app.use('/api/user', userRouter);
 app.use('/api/forum', forumRouter);
+app.use('/api/thread', threadRouter);
 app.get('/', () => {
   console.log('hello');
 })

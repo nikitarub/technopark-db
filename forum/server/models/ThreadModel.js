@@ -3,7 +3,7 @@ import dbInstance, { pgp } from '../modules/DataBaseModule.js';
 class ThreadModel {
     
     createNewThread (columns, values) {
-        console.log(columns),
+        console.log('\n\n',columns),
         console.log(values);
         let c = '('; 
         let v = '(';
@@ -28,6 +28,10 @@ class ThreadModel {
 
     getThreadBySlug (slug) {
         return dbInstance.oneOrNone('SELECT * FROM threads WHERE slug=$1', [slug])
+    }
+
+    getThreadById (id) {
+        return dbInstance.oneOrNone('SELECT * FROM threads WHERE id=$1', [id])
     }
 
     getThreadsByForumSlug (forumSlug, queryParams) {
@@ -57,6 +61,11 @@ class ThreadModel {
             ]);
         }
     }
+
+    incrementVotes (slug, voice) {
+        return dbInstance.one('UPDATE threads SET votes = votes + $2 WHERE slug=$1 RETURNING *', [slug,voice]);
+    }
+
 }
 
 export default new ThreadModel;
