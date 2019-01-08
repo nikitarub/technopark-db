@@ -6,14 +6,8 @@ class UserController {
     createUser (req, res) {
         const nickname = req.params['nickname'];
         const email = req.body['email'];
-        // console.log(req.path);
-        
-        // console.log(req.body['fullname'],
-        // req.body['about'],
-        // req.body['email']);
         UserModel.getUserByNicknameOrEmail(nickname, email)
             .then( data => {
-                // console.log('users', data.length);
                 if (data.length === 0) {
                     const newUserData = [
                         nickname,
@@ -21,8 +15,6 @@ class UserController {
                         req.body['about'],
                         req.body['email']
                     ];
-                    // console.log('newUserData', newUserData);
-                    // console.log('--------------------------------------------');
                     UserModel.createNewUser(newUserData)
                         .then( data => {
                             return res.status(201).json(data);
@@ -33,7 +25,6 @@ class UserController {
                             console.log(error);
                         });
                 } else {
-                    // console.log(data);
                     return res.status(409).json(data);
                 }
             })

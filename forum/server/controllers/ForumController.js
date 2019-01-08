@@ -213,14 +213,12 @@ class ForumController {
 	async getUsers (req, res) {
 		const slug = req.params['slug'];
 		const queryParams = harvestKeyValues(req.query);
-		console.log(queryParams);
 		if (!queryParams['limit']) {
 			queryParams['limit'] = 10
 		} else {
 			queryParams['limit'] = parseInt(queryParams['limit']);
 		}
 		queryParams.desc = queryParams.desc === 'true';
-		console.log(queryParams);
 		let forum;
 		try {
 			forum = await ForumModel.getForumBySlug(slug);

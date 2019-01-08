@@ -9,47 +9,75 @@ import { parse } from 'url';
 
 class ThreadController {
 
-    createPost (req, res){
+    async createPost (req, res){
         // const result = []
         // const creationDate = new Date();
         const newPosts = req.body;
-        let threadSlug = req.params['slug_or_id'];
-        let threadData = {}
+        let slugOrId = req.params['slug_or_id'];
+        // let threadData = {}
         
         // есть ли такая ветка в базе 
-        if (/^\d+$/.test(threadSlug)) {
-            ThreadModel.getThreadById(parseInt(threadSlug))
-                .then( data => {
-                    if (data) {
-                        threadData = data;
-                        createPostsLoop(req,res, threadData);
-                    } else {
-                        return res.status(404).json({ message : 'cant find thread' });
-                    }
-                })  
-                .catch( error => {
-                    console.log('--------------------------------------------');
-                    console.log('ERROR IN GETTING THREAD BY ID');
-                    console.log(error);
-                    return res.status(500).json({ message : "crash" });
-                });
+        // if (/^\d+$/.test(threadSlug)) {
+        //     ThreadModel.getThreadById(parseInt(threadSlug))
+        //         .then( data => {
+        //             if (data) {
+        //                 threadData = data;
+        //                 createPostsLoop(req,res, threadData);
+        //             } else {
+        //                 return res.status(404).json({ message : 'cant find thread' });
+        //             }
+        //         })  
+        //         .catch( error => {
+        //             console.log('--------------------------------------------');
+        //             console.log('ERROR IN GETTING THREAD BY ID');
+        //             console.log(error);
+        //             return res.status(500).json({ message : "crash" });
+        //         });
+        // } else {
+        //     ThreadModel.getThreadBySlug(threadSlug)
+        //         .then( data => {
+        //             if (data) {
+        //                 threadData = data;
+        //                 createPostsLoop(req,res, threadData);
+        //             } else {
+        //                 return res.status(404).json({ message : 'cant find thread' });                    
+        //             }
+        //         }) 
+        //         .catch( error => {
+        //             console.log('--------------------------------------------');
+        //             console.log(error);
+        //             console.log('ERROR IN GETTING THREAD BY SLUG');
+        //             return res.status(500).json({ message : "crash" });
+        //         });
+        // }
+
+
+        let thread;
+        if (/^\d+$/.test(slugOrId)) {
+            try {
+                thread = await ThreadModel.getThreadById(parseInt(slugOrId));
+            } catch (error) {
+                console.log('--------------------------------------------');
+                console.log(error);
+                console.log('ERROR IN GETTING THREAD BY ID');
+                return res.status(500).json({ message : "crash" });
+            }
         } else {
-            ThreadModel.getThreadBySlug(threadSlug)
-                .then( data => {
-                    if (data) {
-                        threadData = data;
-                        createPostsLoop(req,res, threadData);
-                    } else {
-                        return res.status(404).json({ message : 'cant find thread' });                    
-                    }
-                }) 
-                .catch( error => {
-                    console.log('--------------------------------------------');
-                    console.log(error);
-                    console.log('ERROR IN GETTING THREAD BY SLUG');
-                    return res.status(500).json({ message : "crash" });
-                });
+            try {
+                thread = await ThreadModel.getThreadBySlug(slugOrId);
+            } catch (error) {
+                console.log('--------------------------------------------');
+                console.log(error);
+                console.log('ERROR IN GETTING THREAD BY ID');
+                return res.status(500).json({ message : "crash" });
+            }
         }
+
+        if (!thread) {
+            return res.status(404).json({ mesage : 'cant find thread' });
+        }
+        createPostsLoop(req,res, thread);
+
 
         // если было прислано 0 постов
         if (!newPosts.length) {

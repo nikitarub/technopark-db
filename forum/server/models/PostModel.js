@@ -28,6 +28,15 @@ class PostModel {
         return dbInstance.oneOrNone('SELECT * FROM posts WHERE id=$1 AND thread=$2', [id, threadId])
     }
 
+    getPostById (id) {
+        return dbInstance.oneOrNone('SELECT * FROM posts WHERE id=$1', [id]);
+    }
+
+    updatePost (message, id) {
+        return dbInstance.oneOrNone('UPDATE posts SET "isEdited"=TRUE, "message"=$1 WHERE id=$2 RETURNING *', [message,id]);
+    }
+
+    
     flatSort (id, queryParams) {
         if ( queryParams.since ) {
             if (queryParams.desc) {
