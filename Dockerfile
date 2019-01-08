@@ -46,8 +46,8 @@ RUN curl —silent —location https://deb.nodesource.com/setup_8.x | bash -
 RUN apt-get install -y nodejs
 RUN apt-get install -y build-essential
 
-COPY . ./forum
-WORKDIR ./forum
+COPY . /forum
+WORKDIR /forum
 
 RUN npm install
 
@@ -56,4 +56,4 @@ EXPOSE 5000
 
 # Запускаем, инициализируем базу данных, запускаем приложение
 ENV PGPASSWORD 123
-CMD service postgresql start && psql -h localhost -U ermakforum -d forum -f ./forum/sql/createTables.sql && npm start
+CMD service postgresql start && psql -h localhost -d forum -U ermakforum -p 5432 -a -q -f forum/sql/createTables.sql && npm start
