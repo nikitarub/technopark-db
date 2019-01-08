@@ -35,3 +35,25 @@ export const idToInt = function (data) {
     }
     return data;
 }
+
+export const valStr = function (values, noDot) {
+    let v = ' (';
+    for (let i =0 ; i < values.length; i++) {
+        if ( i !== 2) {
+            v += "'" + values[i] + "'";
+        } else {
+            v += values[i];
+
+        }
+        if (i !== values.length - 1) {
+            v += ', ';
+        }
+    }
+    if (noDot) {
+        v += ') ';
+
+    } else {
+        v += '), '; 
+    }
+    return v;
+}

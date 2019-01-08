@@ -104,14 +104,15 @@ class ThreadController {
                                                 if (voteData.existed) {
                                                     voice = voice === 1 ? voice + 1 : voice - 1;
                                                 }
-                                                ThreadModel.incrementVotes(thread.slug, voice)
+                                                // console.log(thread);
+                                                ThreadModel.incrementVotesById(thread.id, voice)
                                                     .then( updateThread =>{
                                                         updateThread.id = parseInt(updateThread.id);
                                                         return res.status(200).json(updateThread);
                                                     })
                                                     .catch( error => {
                                                         console.log('--------------------------------------------');
-                                                        console.log('ERROR IN UPDATING THREAD VOTES');
+                                                        console.log('*** ERROR IN UPDATING THREAD VOTES');
                                                         console.log(error);
                                                         return res.status(500).json({ message : "crash" });
                                                     });
@@ -148,7 +149,7 @@ class ThreadController {
                                                 if (voteData.existed) {
                                                     voice = voice === 1 ? voice + 1 : voice - 1;
                                                 }
-                                                ThreadModel.incrementVotes(thread.slug, voice)
+                                                ThreadModel.incrementVotesBySlug(thread.slug, voice)
                                                     .then( updateThread =>{
                                                         updateThread.id = parseInt(updateThread.id);
                                                         return res.status(200).json(updateThread);
@@ -357,7 +358,6 @@ class ThreadController {
         }
 
         if (result === 'conflict') {
-            console.log('THREAAAAD CONFLICT', result);
             return res.status(409).json({ message : 'already existed data'});
         } else {
             result.id = parseInt(result.id);

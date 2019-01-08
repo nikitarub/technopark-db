@@ -70,8 +70,12 @@ class ThreadModel {
         }
     }
 
-    incrementVotes (slug, voice) {
+    incrementVotesBySlug (slug, voice) {
         return dbInstance.one('UPDATE threads SET votes = votes + $2 WHERE slug=$1 RETURNING *', [slug,voice]);
+    }
+
+    incrementVotesById (id, voice) {
+        return dbInstance.one('UPDATE threads SET votes = votes + $2 WHERE id=$1 RETURNING *', [id,voice]);
     }
 
     updateThread (slug, columns, keyValues) {

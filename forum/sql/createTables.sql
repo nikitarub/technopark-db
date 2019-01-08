@@ -39,14 +39,14 @@ CREATE TABLE IF NOT EXISTS forumusers (
 );
 
 CREATE TABLE IF NOT EXISTS posts (
-	author			CITEXT					 NOT NULL REFERENCES users (nickname), --
-	"created"  	    TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(), --		
-	forum			CITEXT					 NOT NULL REFERENCES forums (slug), --
-	id				BIGSERIAL				 NOT NULL PRIMARY KEY, --
-	"isEdited"		BOOLEAN					 NOT NULL DEFAULT FALSE, --
-	"message"		VARCHAR					 NOT NULL, --
-	parent 			BIGINT					 REFERENCES posts (id), --
-	thread			BIGINT					 NOT NULL REFERENCES threads (id), -- 
+	author			CITEXT					 NOT NULL REFERENCES users (nickname), 
+	"created"  	    TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(), 	
+	forum			CITEXT					 NOT NULL REFERENCES forums (slug), 
+	id				BIGSERIAL				 NOT NULL PRIMARY KEY,
+	"isEdited"		BOOLEAN					 NOT NULL DEFAULT FALSE,
+	"message"		VARCHAR					 NOT NULL,
+	parent 			BIGINT					 REFERENCES posts (id) NULL,
+	thread			BIGINT					 NOT NULL REFERENCES threads (id), 
 	pathtopost		BIGINT					 ARRAY
 );
 
@@ -61,24 +61,6 @@ ADD CONSTRAINT uniqueThreadNickname UNIQUE(nickname, thread);
 
 ALTER TABLE forumusers
 ADD CONSTRAINT unique_forumuser_pair UNIQUE (forumslug, usernickname);
-
-
-
--- CREATE OR REPLACE FUNCTION set_is_edited_status() RETURNS TRIGGER AS $$
--- 	BEGIN
-
---   		UPDATE posts 
---   		SET "isEdited" = TRUE
---   		WHERE id = NEW.id;
-
---   		RETURN NULL;
--- 	END;
--- $$ LANGUAGE plpgsql;
-
--- DROP TRIGGER IF EXISTS tr_set_is_edited_status ON posts;
-
--- CREATE TRIGGER tr_set_is_edited_status AFTER UPDATE OF "message" ON posts FOR EACH ROW EXECUTE PROCEDURE set_is_edited_status();
-
 
 
 CREATE OR REPLACE FUNCTION add_path_to_post() RETURNS TRIGGER AS $add_path_to_post$

@@ -264,10 +264,12 @@ class ForumController {
 		}
 
 
+
+
 		const keyValues = harvestKeyValues(req.body);
-		console.log('AUTHOR', author, forum);
 		keyValues['author'] = author.nickname;
 		keyValues['forum'] = forum.slug;
+		
 		const columns = harvestColumns(keyValues);
 		for (let i = 0; i < columns.length; i++) {
 			if (columns[i] === 'message' || columns[i] === 'created') {
