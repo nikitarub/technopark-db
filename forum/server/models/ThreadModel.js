@@ -6,9 +6,6 @@ class ThreadModel {
         let c = '('; 
         let v = '(';
         for (let i =0 ; i < columns.length; i++) {
-            if (columns[i] === 'slug') {
-                remember = i;
-            }
             c += columns[i];
             if (i !== columns.length - 1) {
                 c += ', ';
