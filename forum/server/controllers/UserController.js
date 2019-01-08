@@ -4,39 +4,86 @@ import { harvestColumns, harvestKeyValues } from '../utils.js'
 import 'babel-polyfill';
 
 class UserController {
-    createUser (req, res) {
+    // createUser (req, res) {
+    //     const nickname = req.params['nickname'];
+    //     const email = req.body['email'];
+    //     UserModel.getUserByNicknameOrEmail(nickname, email)
+    //         .then( data => {
+    //             if (data.length === 0) {
+    //                 const newUserData = [
+    //                     nickname,
+    //                     req.body['fullname'],
+    //                     req.body['about'],
+    //                     req.body['email']
+    //                 ];
+    //                 UserModel.createNewUser(newUserData)
+    //                     .then( data => {
+    //                         return res.status(201).json(data);
+    //                     })
+    //                     .catch( error => {
+    //                         console.log('--------------------------------------------');
+    //                         console.log('ERROR IN CREATING');
+    //                         console.log(error);
+    //                     });
+    //             } else {
+    //                 return res.status(409).json(data);
+    //             }
+    //         })
+    //         .catch( error => {
+    //             console.log('--------------------------------------------');
+
+    //             console.log('ERROR IN GETTING USER BY NICK OR EMAIL');
+    //             console.log(error);
+    //             return res.status(500).json({ message : "crash" })
+    //         });
+    // }    
+
+    async createUser (req, res) {
         const nickname = req.params['nickname'];
         const email = req.body['email'];
-        UserModel.getUserByNicknameOrEmail(nickname, email)
-            .then( data => {
-                if (data.length === 0) {
-                    const newUserData = [
-                        nickname,
-                        req.body['fullname'],
-                        req.body['about'],
-                        req.body['email']
-                    ];
-                    UserModel.createNewUser(newUserData)
-                        .then( data => {
-                            return res.status(201).json(data);
-                        })
-                        .catch( error => {
-                            console.log('--------------------------------------------');
-                            console.log('ERROR IN CREATING');
-                            console.log(error);
-                        });
-                } else {
-                    return res.status(409).json(data);
-                }
-            })
-            .catch( error => {
+        const newUserData = [
+            nickname,
+            req.body['fullname'],
+            req.body['about'],
+            email
+        ];
+        const result = await UserModel.createNewUser(newUserData);
+        if (result) {
+            return res.status(201).json(result);
+        } else {
+            let existingUser;
+            try {
+				existingUser = await UserModel.getUserByNicknameOrEmail(nickname, email);
+				return res.status(409).json(existingUser)
+            } catch (error) {
                 console.log('--------------------------------------------');
-
                 console.log('ERROR IN GETTING USER BY NICK OR EMAIL');
                 console.log(error);
                 return res.status(500).json({ message : "crash" })
-            });
-    }    
+            }
+        }
+    
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     getUser (req, res) {
         const nickname = req.params['nickname'];

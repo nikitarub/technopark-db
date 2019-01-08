@@ -87,8 +87,15 @@ class ForumController {
 			return res.status(201).json(result);
 		} else {
 			let exsistingForum;
-			exsistingForum = await ForumModel.getForumBySlug(slug);
-			return res.status(409).json(exsistingForum)
+			try {
+				exsistingForum = await ForumModel.getForumBySlug(slug);
+				return res.status(409).json(exsistingForum)
+			} catch (error) {
+				console.log('--------------------------------------------');
+				console.log('ERROR IN GETTING FORUM BY SLUG');
+				console.log(error);
+				return res.status(500).json({ message : "crash" })
+			}
 
 		}
 	}

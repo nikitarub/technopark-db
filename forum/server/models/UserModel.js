@@ -15,8 +15,14 @@ class UserModel {
         return dbInstance.manyOrNone('SELECT * FROM users WHERE nickname=$1 OR email=$2', [nickname, email]); 
     }
 
-    createNewUser(newUserData = []) {
-        return dbInstance.one('INSERT INTO users (nickname, fullname, about, email) VALUES ($1, $2, $3 ,$4) RETURNING *', newUserData);
+    async createNewUser(newUserData = []) {
+        try {
+            return await dbInstance.oneOrNone('INSERT INTO users (nickname, fullname, about, email) VALUES ($1, $2, $3 ,$4) ON CONFLICT DO NOTHING RETURNING *', newUserData);
+        } catch (error) {
+            console.log('--------------------------------------------');
+            console.log('ERROR IN CREATING USER');
+            console.log(error);
+        }
     }
 
     // async updateUser(nickname,columns, keyValues) {
