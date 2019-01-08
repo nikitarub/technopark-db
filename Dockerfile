@@ -46,8 +46,8 @@ RUN curl —silent —location https://deb.nodesource.com/setup_8.x | bash -
 RUN apt-get install -y nodejs
 RUN apt-get install -y build-essential
 
-COPY . /src
-WORKDIR /src
+COPY . /forum
+WORKDIR /forum
 
 RUN npm install
 
