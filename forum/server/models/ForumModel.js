@@ -35,7 +35,6 @@ class ForumModel {
 
     getUsers (slug, queryParams) {
         let query;
-        console.log(queryParams);
         if (queryParams.since && !queryParams.desc) {
             query = pgp.as.format(`
             SELECT * FROM forumusers AS FU

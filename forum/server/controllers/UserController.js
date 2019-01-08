@@ -198,8 +198,6 @@ class UserController {
             return res.status(500).json({ message : "crash" })
         }
 
-        console.log(newData, nickname);
-        console.log(user);
         const keyValues = harvestKeyValues(newData);
         const columns = harvestColumns(newData);
         let result;

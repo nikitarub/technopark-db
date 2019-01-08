@@ -123,7 +123,6 @@ class ForumController {
 		const slug = req.params['slug'];
 		ForumModel.getForumBySlug(slug)
 			.then( data => {
-				// console.log('GETTED DATA', data);
 				if (data) {
 					return res.status(200).json(data);
 				}

@@ -14,7 +14,6 @@ class ServiceModel {
             "thread": parseInt(thread.count),
             "user": parseInt(user.count)
         }
-        console.log(result);
         return result;
     }
 
@@ -30,7 +29,6 @@ class ServiceModel {
             "thread": thread,
             "user": user
         }
-        console.log(result);
         return result;
     }
 }

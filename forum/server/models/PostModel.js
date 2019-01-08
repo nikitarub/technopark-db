@@ -21,12 +21,10 @@ class PostModel {
         }
         v += ')';
         const query = 'INSERT INTO posts ' + c + ' VALUES ' + v + ' RETURNING *';
-        // console.log(query);
         return dbInstance.one(query, values);
     }
 
     createNewPostsByQuery (query) {
-        console.log(query);
         return dbInstance.manyOrNone(query);
     }
 

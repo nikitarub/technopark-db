@@ -104,7 +104,6 @@ class ThreadController {
                                                 if (voteData.existed) {
                                                     voice = voice === 1 ? voice + 1 : voice - 1;
                                                 }
-                                                // console.log(thread);
                                                 ThreadModel.incrementVotesById(thread.id, voice)
                                                     .then( updateThread =>{
                                                         updateThread.id = parseInt(updateThread.id);

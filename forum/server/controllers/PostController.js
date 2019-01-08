@@ -26,7 +26,6 @@ class PostController {
         }
 
         const relatedTo = req.query['related'];
-        // console.log('RELATION', typeof(relatedTo));
         let entity;
         if (relatedTo) {
             const relatedEntities = relatedTo.split(',');
@@ -65,7 +64,6 @@ class PostController {
         }
 
 
-        console.log('RELATION', relatedTo);
         postData.id = parseInt(postData.id);
         postData.thread = parseInt(postData.thread);
 

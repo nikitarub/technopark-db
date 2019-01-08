@@ -7,14 +7,12 @@ class ServiceController {
         let result;
         try {   
             result = await ServiceModel.countAll();
-            console.log('-------',result);
         } catch (error) {
             console.log('--------------------------------------------');
             console.log(error);
             console.log('ERROR IN COUNTING');
             return res.status(500).json({ message : "crash" });
         }
-        console.log(result);
         return res.status(200).json(result);
     }
 
@@ -29,7 +27,6 @@ class ServiceController {
             console.log('ERROR IN COUNTING');
             return res.status(500).json({ message : "crash" });
         }
-        console.log(result);
         return res.status(200).end();
     }
 }

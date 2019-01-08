@@ -3,7 +3,6 @@ import dbInstance, { pgp } from '../modules/DataBaseModule.js';
 class ThreadModel {
     
     async createNewThread (columns, values) {
-        let remember;
         let c = '('; 
         let v = '(';
         for (let i =0 ; i < columns.length; i++) {
