@@ -3,6 +3,8 @@ import UserModel from '../models/UserModel.js';
 import ThreadModel from '../models/ThreadModel.js';
 import { harvestValues, harvestColumns, harvestKeyValues, idToInt } from '../utils.js';
 import { parse } from 'url';
+import 'babel-polyfill';
+
 
 
 
@@ -24,7 +26,6 @@ class ForumController {
 									title,
 									user
 								]
-								console.log('NEW FORUM DATA', newForumData);
 								ForumModel.createNewForum(newForumData)
 									.then( data => {
 										return res.status(201).json(data);
@@ -81,7 +82,6 @@ class ForumController {
 	createThreadInForum (req, res) {
 		let author = req.body['author'];
 		let forumSlug = req.params['slug'];
-		console.log('FORUM 111', forumSlug);
 		//  есть ли пользователь с таким ником
 		UserModel.getUserNickname(author)
 			.then( data => {
@@ -209,6 +209,44 @@ class ForumController {
 				return res.status(500).json({ message : "crash" })
 			});	
 	}
+
+	async getUsers (req, res) {
+		const slug = req.params['slug'];
+		const queryParams = harvestKeyValues(req.query);
+		console.log(queryParams);
+		if (!queryParams['limit']) {
+			queryParams['limit'] = 10
+		} else {
+			queryParams['limit'] = parseInt(queryParams['limit']);
+		}
+		queryParams.desc = queryParams.desc === 'true';
+		console.log(queryParams);
+		let forum;
+		try {
+			forum = await ForumModel.getForumBySlug(slug);
+		} catch (error) {
+			console.log('--------------------------------------------');
+			console.log('ERROR IN GETTING FORUM BY SLUG');
+			console.log(error);
+			return res.status(500).json({ message : "crash" })
+		}
+
+		if (!forum) {
+			return res.status(404).json({ message : "Can't find forum" });
+		} 
+
+		let result = [];
+		try {
+			result = await ForumModel.getUsers(forum.slug, queryParams);
+		} catch (error) {
+			console.log('--------------------------------------------');
+			console.log('ERROR IN GETTING USERS IN FORUM');
+			console.log(error);
+			return res.status(500).json({ message : "crash" })
+		}
+		return res.status(200).json(result);
+
+	} 
 }
 
 

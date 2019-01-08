@@ -3,8 +3,6 @@ import dbInstance, { pgp } from '../modules/DataBaseModule.js';
 class ThreadModel {
     
     createNewThread (columns, values) {
-        console.log('\n\n',columns),
-        console.log(values);
         let c = '('; 
         let v = '(';
         for (let i =0 ; i < columns.length; i++) {
@@ -64,6 +62,11 @@ class ThreadModel {
 
     incrementVotes (slug, voice) {
         return dbInstance.one('UPDATE threads SET votes = votes + $2 WHERE slug=$1 RETURNING *', [slug,voice]);
+    }
+
+    updateThread (slug, columns, keyValues) {
+        const query = pgp.helpers.update(keyValues, columns, {table: 'threads'},null, {emptyUpdate: 'conflict'}) + " WHERE \"slug\" = \'" +  slug + "\' RETURNING *";
+        return dbInstance.oneOrNone(query);
     }
 
 }
