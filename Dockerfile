@@ -55,5 +55,5 @@ RUN npm install
 EXPOSE 5000
 
 # Запускаем, инициализируем базу данных, запускаем приложение
-ENV PGPASSWORD docker
+ENV PGPASSWORD 123
 CMD service postgresql start && psql -h localhost -U ermakforum -d forum -f ./forum/sql/createTables.sql && npm start
