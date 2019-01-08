@@ -11,7 +11,7 @@ module.exports = {
     },
 
     entry : {
-        main : './server/index.js'
+        main : './forum/server/index.js'
     },
 
 	output: {

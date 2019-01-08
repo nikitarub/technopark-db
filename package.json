@@ -2,7 +2,7 @@
   "name": "forum",
   "version": "1.0.0",
   "description": "forum-api",
-  "main": "server/index.js",
+  "main": "forum/server/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build-dev": "webpack --config webpack.dev.js",
