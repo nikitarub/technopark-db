@@ -26,6 +26,45 @@ class PostController {
         }
 
         const relatedTo = req.query['related'];
+        // console.log('RELATION', typeof(relatedTo));
+        let entity;
+        if (relatedTo) {
+            const relatedEntities = relatedTo.split(',');
+            for (let relatedEntity of relatedEntities) {
+                if (relatedEntity === 'user') {
+                    try {
+                        entity = await UserModel.getUserByNickname(postData.author);
+                        result.author = entity;
+                    } catch (error) {
+                        console.log('--------------------------------------------');
+                        console.log('ERROR IN GETTING USER BY NICKNAME');
+                        console.log(error);
+                    }
+                } else if (relatedEntity === 'thread') {
+                    try {
+                        entity = await ThreadModel.getThreadById(postData.thread);
+                        entity.id = parseInt(entity.id);
+                        result.thread = entity;
+                    } catch (error) {
+                        console.log('--------------------------------------------');
+                        console.log('ERROR IN GETTING THREAD BY ID');
+                        console.log(error);
+                    }
+                } else if (relatedEntity === 'forum') {
+                    try {
+                        entity = await ForumModel.getForumBySlug(postData.forum);
+                        // entity.id = parseInt(entity.id);
+                        result.forum = entity;
+                    } catch (error) {
+                        console.log('--------------------------------------------');
+                        console.log('ERROR IN GETTING THREAD BY ID');
+                        console.log(error);
+                    }  
+                }
+            }
+        }
+
+
         console.log('RELATION', relatedTo);
         postData.id = parseInt(postData.id);
         postData.thread = parseInt(postData.thread);
@@ -51,10 +90,6 @@ class PostController {
             return res.status(404).json({ message : 'cant find post' });
         }
 
-
-        // const columns = harvestColumns(newData);
-        // const keyValues = harvestKeyValues(newData);
-
         // если было прислано пустое body
         // или все данные были присланы как пустые строки
         if (!Object.values(newData).length || newData.message === '') {
@@ -65,21 +100,28 @@ class PostController {
         }
 
         let result;
-        try {
-            result = await PostModel.updatePost(newData.message, postId);
-        } catch (error) {
-            console.log('--------------------------------------------');
-            console.log('ERROR IN UPDATIND POST');
-            console.log(error); 
-        }
-
-        if (result === 'conflict') {
-            return res.status(409).json({ message : 'already existed data'});
+        if (postData.message !== newData.message) {
+            try {
+                result = await PostModel.updatePost(newData.message, postId);
+            } catch (error) {
+                console.log('--------------------------------------------');
+                console.log('ERROR IN UPDATIND POST');
+                console.log(error); 
+            }
+    
+            if (result === 'conflict') {
+                return res.status(409).json({ message : 'already existed data'});
+            } else {
+                result.id = parseInt(result.id);
+                result.thread = parseInt(result.thread);
+                result.parent ? parseInt(result.parent) : result.parent;   
+                return res.status(200).json(result);
+            }
         } else {
-            result.id = parseInt(result.id);
-            result.thread = parseInt(result.thread);
-            result.parent ? parseInt(result.parent) : result.parent;   
-            return res.status(200).json(result);
+            postData.id = parseInt(postData.id);
+            postData.thread = parseInt(postData.thread);
+            postData.parent ? parseInt(postData.parent) : postData.parent; 
+            return res.status(200).json(postData);
         }
     }
 
