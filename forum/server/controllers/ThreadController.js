@@ -357,6 +357,7 @@ class ThreadController {
         }
 
         if (result === 'conflict') {
+            console.log('THREAAAAD CONFLICT', result);
             return res.status(409).json({ message : 'already existed data'});
         } else {
             result.id = parseInt(result.id);

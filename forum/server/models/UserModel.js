@@ -1,4 +1,6 @@
 import dbInstance, { pgp } from '../modules/DataBaseModule.js';
+import 'babel-polyfill';
+
 class UserModel {
 
     getUserByNickname (nickname) {
@@ -17,11 +19,22 @@ class UserModel {
         return dbInstance.one('INSERT INTO users (nickname, fullname, about, email) VALUES ($1, $2, $3 ,$4) RETURNING *', newUserData);
     }
 
-    updateUser(nickname,columns, keyValues) {
+    // async updateUser(nickname,columns, keyValues) {
 
-        const query = pgp.helpers.update(keyValues, columns, 'users') + " WHERE \"nickname\" = \'" +  nickname + "\' RETURNING *";
-        // console.log(query);
-        return dbInstance.oneOrNone(query);
+    //     const query = pgp.helpers.update(keyValues, columns, {table: 'users'}, null, {emptyUpdate: 'conflict'}) + " WHERE \"nickname\" = \'" +  nickname + "\' RETURNING *";
+    //     console.log("QUERY", query);
+    //     return await dbInstance.oneOrNone(query);
+    // }
+
+
+    async updateUser(nickname,columns, keyValues) {
+        try {
+            const query = pgp.helpers.update(keyValues, columns, {table: 'users'}, null, {emptyUpdate: 'conflict'}) + " WHERE \"nickname\" = \'" +  nickname + "\' RETURNING *";            
+            return await dbInstance.oneOrNone(query);
+        }
+        catch (error) {
+            console.log(error);
+        }
     }
 
     // казалось бы масло малсляное, но это нужно чтобы получить имя именно так как оно было заисано

@@ -98,5 +98,5 @@ export const createPostsLoop = async function (req,res, threadData) {
             return res.status(404).json({ message : 'cant find author' }); 
         }
     }
-    return res.status(201).json(result);
+    return res.status(201).send(result);
 }

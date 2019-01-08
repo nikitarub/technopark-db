@@ -1,4 +1,5 @@
 import dbInstance, { pgp } from '../modules/DataBaseModule.js';
+import 'babel-polyfill';
 
 class ForumModel {
 
@@ -6,8 +7,14 @@ class ForumModel {
         return dbInstance.oneOrNone('SELECT * FROM forums WHERE slug=$1', [slug])
     }
 
-    createNewForum (newForumData = []) {
-        return dbInstance.one('INSERT INTO forums (slug, title, "user") VALUES ($1, $2, $3) RETURNING *', newForumData);
+    async createNewForum (newForumData = []) {
+        try {
+            return await dbInstance.oneOrNone('INSERT INTO forums (slug, title, "user") VALUES ($1, $2, $3) ON CONFLICT DO NOTHING RETURNING *', newForumData);
+        } catch (error) {
+            console.log('--------------------------------------------');
+            console.log('ERROR IN CREATING THREAD');
+            console.log(error);
+        }
     }
 
     getForumSlug (slug) {
@@ -19,11 +26,11 @@ class ForumModel {
     }
 
     incrementThreads(slug) {
-        return dbInstance.one('UPDATE forums SET threads = threads + 1 WHERE slug=$1 RETURNING *', [slug]);
+        return dbInstance.oneOrNone('UPDATE forums SET threads = threads + 1 WHERE slug=$1 RETURNING *', [slug]);
     }
 
     incrementPosts(slug) {
-        return dbInstance.one('UPDATE forums SET posts = posts + 1 WHERE slug=$1 RETURNING *', [slug]);
+        return dbInstance.oneOrNone('UPDATE forums SET posts = posts + 1 WHERE slug=$1 RETURNING *', [slug]);
     }
 
     getUsers (slug, queryParams) {
@@ -58,32 +65,6 @@ class ForumModel {
             ]
             )
     }
-    // getUsers(slug, queryParams) {
-    //         // pre-format WHERE conditions
-    //         let whereCondition;
-    //         if (queryParams.since && queryParams.desc) {
-    //             whereCondition = pgp.as.format(` WHERE nickname IN 
-    //             (SELECT usernickname FROM forumusers WHERE forumslug = $1)
-    //             AND nickname < $2 `, [slug, queryParams.since]);
-    //         } else if (queryParams.since && !queryParams.desc) {
-    //             whereCondition = pgp.as.format(`WHERE nickname IN 
-    //             (SELECT usernickname FROM forumusers WHERE forumslug = $1)
-    //             AND nickname > $2 `, [slug, queryParams.since]);
-    //         } else {
-    //             whereCondition = pgp.as.format(` WHERE nickname IN 
-    //             (SELECT usernickname FROM forumusers WHERE forumslug = $1)`, [slug]);
-    //         }
-    //         return dbInstance.manyOrNone(`
-    //             SELECT about, email, fullname, nickname 
-    //             FROM users $1:raw 
-    //             ORDER BY $2:raw LIMIT $3`,
-    //             [whereCondition.toString(),
-    //             (queryParams.desc ? 'nickname DESC' : 'nickname ASC'),
-    //             queryParams.limit]);
-
-    // }
-
-
 }
 
 export default new ForumModel; 

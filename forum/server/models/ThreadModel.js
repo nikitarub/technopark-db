@@ -2,10 +2,14 @@ import dbInstance, { pgp } from '../modules/DataBaseModule.js';
 
 class ThreadModel {
     
-    createNewThread (columns, values) {
+    async createNewThread (columns, values) {
+        let remember;
         let c = '('; 
         let v = '(';
         for (let i =0 ; i < columns.length; i++) {
+            if (columns[i] === 'slug') {
+                remember = i;
+            }
             c += columns[i];
             if (i !== columns.length - 1) {
                 c += ', ';
@@ -20,8 +24,14 @@ class ThreadModel {
             }
         }
         v += ')';
-        const query = 'INSERT INTO threads ' + c + ' VALUES ' + v + ' RETURNING *';
-        return dbInstance.one(query, values);
+        try {
+            const query = 'INSERT INTO threads ' + c + ' VALUES ' + v + ` ON CONFLICT DO NOTHING RETURNING *`;
+            return await dbInstance.oneOrNone(query, values);
+        } catch (error) {
+            console.log('--------------------------------------------');
+            console.log('ERROR IN CREATING THREAD');
+            console.log(error);
+        }
     }
 
     getThreadBySlug (slug) {
