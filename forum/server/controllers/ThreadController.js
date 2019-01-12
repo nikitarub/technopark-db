@@ -68,7 +68,7 @@ class ThreadController {
             } catch (error) {
                 console.log('--------------------------------------------');
                 console.log(error);
-                console.log('ERROR IN GETTING THREAD BY ID');
+                console.log('ERROR IN GETTING THREAD BY slug');
                 return res.status(500).json({ message : "crash" });
             }
         }

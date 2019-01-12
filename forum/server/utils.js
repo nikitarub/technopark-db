@@ -36,24 +36,30 @@ export const idToInt = function (data) {
     return data;
 }
 
-export const valStr = function (values, noDot) {
-    let v = ' (';
-    for (let i =0 ; i < values.length; i++) {
-        if ( i !== 2) {
-            v += "'" + values[i] + "'";
+export const valStr = function (arrayOfPostObjects) {
+    let resultQuery = ``;
+    for (let i = 0; i < arrayOfPostObjects.length; i++) {
+        const valuesInArray = harvestValues(arrayOfPostObjects[i]);
+        let val = ` (`;
+        for (let j = 0; j < valuesInArray.length; j++) {
+
+            if ( j !== 2) {
+                val += "'" + valuesInArray[j] + "'";
+            } else {
+                val += valuesInArray[j];
+
+            }
+            if (j !== valuesInArray.length - 1) {
+                val += ', ';
+            }
+        }
+
+        resultQuery += val;
+        if (i === arrayOfPostObjects.length - 1) {
+            resultQuery += `) `;
         } else {
-            v += values[i];
-
-        }
-        if (i !== values.length - 1) {
-            v += ', ';
+            resultQuery += `), `;
         }
     }
-    if (noDot) {
-        v += ') ';
-
-    } else {
-        v += '), '; 
-    }
-    return v;
+    return resultQuery;
 }
