@@ -68,40 +68,31 @@ export const createPostsLoop = async function (req,res, threadData) {
             return res.status(500).json({ message : "crash" })
         }
 
+        const postId = await PostModel.getIdForPost();
+
         post.created = creationDate;
         post.thread = threadData.id;
         post.forum = threadData.forum;
+        post.id = parseInt(postId.nextval);
+        const path = await constructPathToPost(post);
+        post.pathtopost = path;
         postsValues.push(post);
     }
 
     // добавляем пост
     const result = []; 
     try {
-        const columns = `(author, "message", parent, "created", thread, forum)`
+        const columns = `(author, "message", parent, "created", thread, forum, id, pathtopost)`
         const valuesInStringQuery = valStr(postsValues);
         const query = `INSERT INTO posts ` + columns + ` VALUES ` + valuesInStringQuery + ` RETURNING *`;
 
         const addedPosts = await PostModel.createNewPostsByQuery(query);
-        // console.log('-------------------------------------------- BEFORE INSERT------------------------------------');
-        // for (let post of addedPosts) {
-        //     console.log(post.id);
-        //     console.log(post.parent);
-        //     console.log(post.pathtopost);
-        // }
         for (let post of addedPosts) {
-            const path = await constructPathToPost(post);
-            const updatedPost = await PostModel.setPathToPost(post.id, path);
-            updatedPost.id = parseInt(updatedPost.id);
-            updatedPost.thread = parseInt(updatedPost.thread);
-            updatedPost.parent = parseInt(updatedPost.parent);
-            result.push(updatedPost);
+            post.id = parseInt(post.id);
+            post.thread = parseInt(post.thread);
+            post.parent = parseInt(post.parent);
+            result.push(post);
         }
-        // console.log('-------------------------------------------- AFTER INSERT------------------------------------');
-        // for (let post of result) {
-        //     console.log(post.id);
-        //     console.log(post.parent);
-        //     console.log(post.pathtopost);
-        // }
         return res.status(201).json(result);
     } catch (error) {
         console.log('--------------------------------------------');
