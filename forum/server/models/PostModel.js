@@ -40,6 +40,15 @@ class PostModel {
         return dbInstance.oneOrNone('UPDATE posts SET "isEdited"=TRUE, "message"=$1 WHERE id=$2 RETURNING *', [message,id]);
     }
 
+    setPathToPost (id , path) {
+        // console.log(path);
+        return dbInstance.oneOrNone("UPDATE posts SET pathtopost='$2:raw' WHERE id=$1 RETURNING *", [id, path]);
+    }
+
+    getPathToPost (id) {
+        return dbInstance.oneOrNone('SELECT pathtopost FROM posts WHERE id=$1', [id]);
+    }
+
     
     flatSort (id, queryParams) {
         if ( queryParams.since ) {

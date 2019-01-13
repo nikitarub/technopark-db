@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS forumusers CASCADE;
 DROP TABLE IF EXISTS votes CASCADE;
 DROP TABLE IF EXISTS posts CASCADE;
 
+
 CREATE TABLE IF NOT EXISTS users (
 	nickname CITEXT COLLATE ucs_basic	NOT NULL PRIMARY KEY,
 	fullname VARCHAR 					NOT NULL,
@@ -47,7 +48,7 @@ CREATE TABLE IF NOT EXISTS posts (
 	"message"		VARCHAR					 NOT NULL,
 	parent 			BIGINT					 REFERENCES posts (id) NULL,
 	thread			BIGINT					 NOT NULL REFERENCES threads (id), 
-	pathtopost		BIGINT					 ARRAY
+	pathtopost		BIGINT					 ARRAY 
 );
 
 CREATE TABLE IF NOT EXISTS votes (
@@ -61,23 +62,3 @@ ADD CONSTRAINT uniqueThreadNickname UNIQUE(nickname, thread);
 
 ALTER TABLE forumusers
 ADD CONSTRAINT unique_forumuser_pair UNIQUE (forumslug, usernickname);
-
-
-CREATE OR REPLACE FUNCTION add_path_to_post() RETURNS TRIGGER AS $add_path_to_post$
-    DECLARE
-        parent_path BIGINT[];
-    BEGIN
-        IF (NEW.parent IS NULL) OR (NEW.parent = 0) THEN
-            NEW.pathtopost := NEW.pathtopost || NEW.id;
-        ELSE
-            SELECT pathtopost FROM posts
-                WHERE id = NEW.parent INTO parent_path;
-            NEW.pathtopost := NEW.pathtopost || parent_path || NEW.id;
-        END IF;
-        RETURN NEW;
-    END;
-$add_path_to_post$ LANGUAGE  plpgsql;
-
-DROP TRIGGER IF EXISTS tr_add_path_to_post ON posts;
-
-CREATE TRIGGER tr_add_path_to_post BEFORE INSERT ON posts FOR EACH ROW EXECUTE PROCEDURE add_path_to_post();

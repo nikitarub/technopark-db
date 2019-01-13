@@ -2,7 +2,7 @@ import ForumModel from '../models/ForumModel.js';
 import UserModel from '../models/UserModel.js';
 import PostModel from '../models/PostModel.js';
 import 'babel-polyfill';
-import { valStr } from '../utils.js';
+import { valStr, constructPathString } from '../utils.js';
 
 
 export const createPostsLoop = async function (req,res, threadData) {
@@ -51,6 +51,7 @@ export const createPostsLoop = async function (req,res, threadData) {
         // добавляем юзера в форум 
         try {
             await ForumModel.createForumUserPair(threadData.forum, post.author);
+
         } catch (error) {
             console.log('--------------------------------------------');
             console.log('ERROR IN CREATING USER FORUM PAIR');
@@ -81,12 +82,26 @@ export const createPostsLoop = async function (req,res, threadData) {
         const query = `INSERT INTO posts ` + columns + ` VALUES ` + valuesInStringQuery + ` RETURNING *`;
 
         const addedPosts = await PostModel.createNewPostsByQuery(query);
+        // console.log('-------------------------------------------- BEFORE INSERT------------------------------------');
+        // for (let post of addedPosts) {
+        //     console.log(post.id);
+        //     console.log(post.parent);
+        //     console.log(post.pathtopost);
+        // }
         for (let post of addedPosts) {
-            post.id = parseInt(post.id);
-            post.thread = parseInt(post.thread);
-            post.parent = parseInt(post.parent);
-            result.push(post);
+            const path = await constructPathToPost(post);
+            const updatedPost = await PostModel.setPathToPost(post.id, path);
+            updatedPost.id = parseInt(updatedPost.id);
+            updatedPost.thread = parseInt(updatedPost.thread);
+            updatedPost.parent = parseInt(updatedPost.parent);
+            result.push(updatedPost);
         }
+        // console.log('-------------------------------------------- AFTER INSERT------------------------------------');
+        // for (let post of result) {
+        //     console.log(post.id);
+        //     console.log(post.parent);
+        //     console.log(post.pathtopost);
+        // }
         return res.status(201).json(result);
     } catch (error) {
         console.log('--------------------------------------------');
@@ -94,4 +109,22 @@ export const createPostsLoop = async function (req,res, threadData) {
         console.log(error);
         return res.status(500).json({ message : "crash" })
     }
+}
+
+
+export const constructPathToPost = async function (post) {
+    const idArray = [];
+    idArray.push(post.id);
+    const idString = constructPathString(idArray);
+    let pathtopost;
+    if (!post.parent) {
+        pathtopost = post.pathtopost || idString;
+    } else {
+
+        const path = await PostModel.getPathToPost(post.parent);
+        path.pathtopost.push(post.id);
+        const pathString = constructPathString(path.pathtopost);
+        pathtopost = post.pathtopost || pathString || idString
+    }
+    return pathtopost;
 }

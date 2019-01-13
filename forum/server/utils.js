@@ -63,3 +63,16 @@ export const valStr = function (arrayOfPostObjects) {
     }
     return resultQuery;
 }
+
+
+export const constructPathString = function (pathArray) {
+    let result = `{`;
+    for (let i = 0; i < pathArray.length; i++) {
+        result += pathArray[i];
+        if (i !== pathArray.length - 1) {
+            result += `, `;
+        }
+    }
+    result += `}`;
+    return result;
+}
