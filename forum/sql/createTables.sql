@@ -151,7 +151,7 @@ ALTER TABLE forumusers SET (autovacuum_enabled = false);
 ALTER TABLE forums SET (autovacuum_enabled = false);
 ALTER TABLE users SET (autovacuum_enabled = false);
 
-CREATE INDEX IF NOT EXISTS idx_threads_slug_id ON threads (slug, id, forum);
-CREATE INDEX IF NOT EXISTS index_posts_thread_id ON posts (thread, id);
-CREATE INDEX IF NOT EXISTS users_nickname_index ON users (nickname);
+-- CREATE UNIQUE INDEX IF NOT EXISTS idx_threads_slug_id ON threads (slug, id);
+-- CREATE INDEX IF NOT EXISTS index_posts_thread_id ON posts (thread, id);
+-- CREATE INDEX IF NOT EXISTS users_nickname_index ON users (nickname);
 
