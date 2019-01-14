@@ -1,4 +1,7 @@
 import dbInstance, { pgp } from '../modules/DataBaseModule.js';
+const PS = require('pg-promise').PreparedStatement;
+
+const getPostByIdAndThreadIdStatment = new PS('get-post', 'SELECT * FROM posts WHERE id=$1 AND thread=$2');
 
 class PostModel {
     
@@ -24,12 +27,19 @@ class PostModel {
         return dbInstance.one(query, values);
     }
 
-    createNewPostsByQuery (query) {
-        return dbInstance.manyOrNone(query);
+    async createNewPostsByQuery (query) {
+        // console.log(query);
+        try {
+            return  await dbInstance.manyOrNone(query);
+        } catch (error) {
+            console.log('--------------------------------------------');
+            console.log('ERROR IN CREATING POST NO AUTHOR');
+            console.log(error);
+        }
     }
 
     getPostByIdAndThreadId (id, threadId) {
-        return dbInstance.oneOrNone('SELECT * FROM posts WHERE id=$1 AND thread=$2', [id, threadId])
+        return dbInstance.oneOrNone(getPostByIdAndThreadIdStatment, [id, threadId])
     }
 
     getPostById (id) {
@@ -43,11 +53,6 @@ class PostModel {
     updatePost (message, id) {
         return dbInstance.oneOrNone('UPDATE posts SET "isEdited"=TRUE, "message"=$1 WHERE id=$2 RETURNING *', [message,id]);
     }
-
-    // setPathToPost (id , path) {
-    //     // console.log(path);
-    //     return dbInstance.oneOrNone("UPDATE posts SET pathtopost='$2:raw' WHERE id=$1 RETURNING *", [id, path]);
-    // }
 
     getPathToPost (id) {
         return dbInstance.oneOrNone('SELECT pathtopost FROM posts WHERE id=$1', [id]);

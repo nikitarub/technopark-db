@@ -136,6 +136,14 @@ ADD CONSTRAINT uniqueThreadNickname UNIQUE(nickname, thread);
 ALTER TABLE forumusers
 ADD CONSTRAINT unique_forumuser_pair UNIQUE (forumslug, usernickname);
 
+
+-- PREPARE get_nickname_statement (text) AS 
+-- 	SELECT nickname FROM users WHERE nickname=$1;
+
+-- PREPARE get_post_statement (int, int) AS 
+-- 	SELECT * FROM posts WHERE id=$1 AND thread=$2;
+
+
 ALTER TABLE posts SET (autovacuum_enabled = false);
 ALTER TABLE threads SET (autovacuum_enabled = false);
 ALTER TABLE votes SET (autovacuum_enabled = false);
@@ -143,5 +151,7 @@ ALTER TABLE forumusers SET (autovacuum_enabled = false);
 ALTER TABLE forums SET (autovacuum_enabled = false);
 ALTER TABLE users SET (autovacuum_enabled = false);
 
-CREATE UNIQUE INDEX IF NOT EXISTS idx_threads_slug_id ON threads (slug, id);
-CREATE INDEX IF NOT EXISTS index_posts_thread_id ON posts (thread, id);
+-- CREATE UNIQUE INDEX IF NOT EXISTS idx_threads_slug_id ON threads (slug, id);
+-- CREATE INDEX IF NOT EXISTS index_posts_thread_id ON posts (thread, id);
+-- CREATE INDEX IF NOT EXISTS users_nickname_index ON users (nickname);
+

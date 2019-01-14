@@ -21,8 +21,17 @@ class ForumModel {
         return dbInstance.oneOrNone('SELECT slug FROM forums WHERE slug=$1', [slug])
     }
 
-    createForumUserPair(forumSlug, nickname) {
-        return dbInstance.oneOrNone('INSERT INTO forumusers (forumslug, usernickname) VALUES ($1, $2) ON CONFLICT ON CONSTRAINT unique_forumuser_pair DO NOTHING RETURNING *', [forumSlug,nickname]); 
+    async createForumUserPair(forumSlug, nickname) {
+        // console.log('SEARCH',forumSlug, nickname);
+        try {
+            return await dbInstance.oneOrNone(`INSERT INTO forumusers (forumslug, usernickname) VALUES ($1,
+                (SELECT nickname FROM users WHERE nickname=$2))
+                ON CONFLICT ON CONSTRAINT unique_forumuser_pair DO NOTHING RETURNING *`, [forumSlug,nickname]); 
+        } catch (error) {
+            console.log('--------------------------------------------');
+            console.log('ERROR IN CREATING THREAD');
+            console.log(error);
+        }
     }
 
     incrementThreads(slug) {

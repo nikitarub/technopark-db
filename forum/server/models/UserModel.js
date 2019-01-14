@@ -1,5 +1,10 @@
 import dbInstance, { pgp } from '../modules/DataBaseModule.js';
 import 'babel-polyfill';
+const PS = require('pg-promise').PreparedStatement;
+
+
+const getNicknameStatement = new PS('get-nick', 'SELECT nickname FROM users WHERE nickname=$1');
+
 
 class UserModel {
 
@@ -49,7 +54,7 @@ class UserModel {
     имя так как оно было записано в таблице users (не в верхнем или нижнем регистрах)
     */
     getUserNickname (nickname) {
-        return dbInstance.oneOrNone('SELECT nickname FROM users WHERE nickname=$1', [nickname])
+        return dbInstance.oneOrNone(getNicknameStatement, [nickname])
     }
 
 

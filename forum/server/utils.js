@@ -37,11 +37,15 @@ export const idToInt = function (data) {
 }
 
 export const valStr = function (arrayOfPostObjects) {
+    // let resultQuery = `WITH post_author AS (
+    //     SELECT nickname FROM users WHERE nickname=${nickname}
+    //    ) `;
     let resultQuery = ``;
     for (let i = 0; i < arrayOfPostObjects.length; i++) {
         const valuesInArray = harvestValues(arrayOfPostObjects[i]);
         let val = ` (`;
-        for (let j = 0; j < valuesInArray.length; j++) {
+        val += `(SELECT nickname FROM users WHERE nickname=${`'` + valuesInArray[0] + `'`}), `;
+        for (let j = 1; j < valuesInArray.length; j++) {
 
             if ( j !== 2) {
                 val += "'" + valuesInArray[j] + "'";
