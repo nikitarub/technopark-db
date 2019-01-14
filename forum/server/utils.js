@@ -76,3 +76,32 @@ export const constructPathString = function (pathArray) {
     result += `}`;
     return result;
 }
+
+// export const construnctPrepareStatementValues = function (len) {
+//     let result = ``;
+//     for (let i = 0; i < len; i++) {
+//         // result += `(`;
+//         // for (let j = 1; j <= 8; j++) {
+//         //     if (j !== 8) {
+//         //         result += `$` + `${j + i * 8}, `;
+//         //     } else {
+//         //         result += `$` + `${j + i * 8}`;
+//         //     }
+//         // }
+
+//         // if (i !== len - 1) {
+//         //     result += `), `;
+//         // } else {
+//         //     result += `) `;
+//         // }
+//         result += `(`;
+//         if (i !== len - 1) {
+//             result += `${i+1}, `;
+//         } else {
+//             result += `${i+1} `;
+//         }
+//         result += `)`;
+//     }
+//     // console.log(len, result);
+//     return result;
+// }

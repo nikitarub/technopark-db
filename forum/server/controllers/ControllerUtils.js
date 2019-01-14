@@ -76,6 +76,7 @@ export const createPostsLoop = async function (req,res, threadData) {
         post.id = parseInt(postId.nextval);
         const path = await constructPathToPost(post);
         post.pathtopost = path;
+        // console.log(post);
         postsValues.push(post);
     }
 
@@ -87,12 +88,30 @@ export const createPostsLoop = async function (req,res, threadData) {
         const query = `INSERT INTO posts ` + columns + ` VALUES ` + valuesInStringQuery + ` RETURNING *`;
 
         const addedPosts = await PostModel.createNewPostsByQuery(query);
+        // console.log('-------------------------------------------- BEFORE INSERT------------------------------------');
+        // for (let post of addedPosts) {
+        //     console.log(post.id);
+        //     console.log(post.parent);
+        //     console.log(post.pathtopost);
+        // }
         for (let post of addedPosts) {
+            
+            // const nextId = await PostModel.getIdForPost();
+            // console.log('IDDDD', nextId);
+
+            // const path = await constructPathToPost(post);
+            // const updatedPost = await PostModel.setPathToPost(post.id, path);
             post.id = parseInt(post.id);
             post.thread = parseInt(post.thread);
             post.parent = parseInt(post.parent);
             result.push(post);
         }
+        // console.log('-------------------------------------------- AFTER INSERT------------------------------------');
+        // for (let post of result) {
+        //     console.log(post.id);
+        //     console.log(post.parent);
+        //     console.log(post.pathtopost);
+        // }
         return res.status(201).json(result);
     } catch (error) {
         console.log('--------------------------------------------');
