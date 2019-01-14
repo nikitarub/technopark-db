@@ -38,8 +38,23 @@ class PostModel {
         }
     }
 
-    getPostByIdAndThreadId (id, threadId) {
-        return dbInstance.oneOrNone(getPostByIdAndThreadIdStatment, [id, threadId])
+    async getPostByIdAndThreadId (id, slugOrId, isId) {
+
+        // console.log('ERROR IN getPostByIdAndThreadId');
+        const threadId = isId ? slugOrId : `(SELECT id FROM threads WHERE slug='${slugOrId}')`;
+
+
+        try {
+            return await dbInstance.oneOrNone(`SELECT id FROM posts WHERE id=${id} AND thread=${threadId}`)
+        } catch (error) {
+            console.log('--------------------------------------------');
+            console.log('ERROR IN GETTING POST BY ID AND THREADID');
+            console.log(error);   
+        }
+
+
+
+        // return dbInstance.oneOrNone(getPostByIdAndThreadIdStatment, [id, threadId])
     }
 
     getPostById (id) {

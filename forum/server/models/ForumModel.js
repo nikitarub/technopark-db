@@ -21,10 +21,25 @@ class ForumModel {
         return dbInstance.oneOrNone('SELECT slug FROM forums WHERE slug=$1', [slug])
     }
 
-    async createForumUserPair(forumSlug, nickname) {
-        // console.log('SEARCH',forumSlug, nickname);
+    async createForumUserPairUsingForum (forumSlug, nickname) {
+        // console.log('ERROR IN createForumUserPairUsingForum');
+        forumSlug = `(SELECT slug FROM forums WHERE slug='${forumSlug}')`;
         try {
-            return await dbInstance.oneOrNone(`INSERT INTO forumusers (forumslug, usernickname) VALUES ($1,
+            return await dbInstance.oneOrNone(`INSERT INTO forumusers (forumslug, usernickname) VALUES ($1:raw,
+                (SELECT nickname FROM users WHERE nickname=$2))
+                ON CONFLICT ON CONSTRAINT unique_forumuser_pair DO NOTHING RETURNING *`, [forumSlug,nickname]); 
+        } catch (error) {
+            console.log('--------------------------------------------');
+            console.log('ERROR IN CREATING THREAD');
+            console.log(error);
+        }
+    }
+
+    async createForumUserPairUsingThread (nickname, threadSlugOrId, isId) {
+        // console.log('ERROR IN createForumUserPairUsingThread');
+        const forumSlug = isId ? `(SELECT forum FROM threads WHERE id=${threadSlugOrId})` : `(SELECT forum FROM threads WHERE slug='${threadSlugOrId}')`;
+        try {
+            return await dbInstance.oneOrNone(`INSERT INTO forumusers (forumslug, usernickname) VALUES ($1:raw,
                 (SELECT nickname FROM users WHERE nickname=$2))
                 ON CONFLICT ON CONSTRAINT unique_forumuser_pair DO NOTHING RETURNING *`, [forumSlug,nickname]); 
         } catch (error) {
@@ -38,8 +53,16 @@ class ForumModel {
         return dbInstance.oneOrNone('UPDATE forums SET threads = threads + 1 WHERE slug=$1 RETURNING *', [slug]);
     }
 
-    incrementPosts(slug) {
-        return dbInstance.oneOrNone('UPDATE forums SET posts = posts + 1 WHERE slug=$1 RETURNING *', [slug]);
+    async incrementPosts(slugOrId, isId) {
+        // console.log('ERROR IN incrementPosts');
+        const forumSlug = isId ? `(SELECT forum FROM threads WHERE id=${slugOrId})` : `(SELECT forum FROM threads WHERE slug='${slugOrId}')`;
+        try {
+            return await dbInstance.oneOrNone(`UPDATE forums SET posts = posts + 1 WHERE slug=${forumSlug}`);
+        } catch (error) {
+            console.log('--------------------------------------------');
+            console.log('ERROR IN INCREMENTING POSTS');
+            console.log(error);
+        }
     }
 
     getUsers (slug, queryParams) {

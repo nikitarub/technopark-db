@@ -10,55 +10,6 @@ import 'babel-polyfill';
 
 class ForumController {
 
-    // createForum (req, res) {
-	// 	let user = req.body['user'];
-	// 	const slug = req.body['slug'];
-	// 	const title = req.body['title'];
-	// 	UserModel.getUserNickname(user)
-	// 		.then( data => {
-	// 			if (data) {
-	// 				user = data.nickname;
-	// 				ForumModel.getForumBySlug(slug) // OPT можно делать селект только в случае если есть дубликаты
-	// 					.then( data =>{
-	// 						if (!data) {
-	// 							const newForumData = [
-	// 								slug,
-	// 								title,
-	// 								user
-	// 							]
-	// 							ForumModel.createNewForum(newForumData)
-	// 								.then( data => {
-	// 									return res.status(201).json(data);
-	// 								})
-	// 								.catch( error => {
-	// 									console.log('--------------------------------------------');
-	// 									console.log('ERROR IN CREATING Forum');
-	// 									console.log(error);
-	// 								});
-			
-	// 						} else {
-	// 							return res.status(409).json(data);
-	// 						}
-	// 					})
-	// 					.catch( error => {
-	// 						console.log('--------------------------------------------');
-	// 						console.log('ERROR IN GETTING FORUM BY SLUG');
-	// 						console.log(error);
-	// 						return res.status(500).json({ message : "crash" })
-	// 					});
-	// 			} else {
-	// 				res.status(404).json({ message : "Can't find user" });
-	// 			}              
-	// 		})
-	// 		.catch( error => {
-	// 			console.log('--------------------------------------------');
-	// 			console.log('ERROR IN GETTING USER BY NICK');
-	// 			console.log(error);
-	// 			return res.status(500).json({ message : "crash" });
-	// 		});
-	// }
-
-
 	async createForum (req, res) {
 		let user = req.body['user'];
 		const slug = req.body['slug'];
@@ -101,23 +52,6 @@ class ForumController {
 	}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	
 	getDetails (req, res) {
 		const slug = req.params['slug'];
@@ -138,100 +72,6 @@ class ForumController {
 
 	}
 
-	// createThreadInForum (req, res) {
-	// 	let author = req.body['author'];
-	// 	let forumSlug = req.params['slug'];
-	// 	//  есть ли пользователь с таким ником
-	// 	UserModel.getUserNickname(author)
-	// 		.then( data => {
-	// 			if (data) {
-	// 				author = data.nickname;
-	// 			} else {
-	// 				return res.status(404).json({ message : "Can't find user" });
-	// 			}
-	// 		})
-	// 		.catch( error => {
-	// 			console.log('--------------------------------------------');
-	// 			console.log('ERROR IN GETTING USER BY NICK');
-	// 			console.log(error);
-	// 			return res.status(500).json({ message : "crash" })
-	// 		});
-			
-	// 	// есть ли форум в котором хотят создать ветку 
-	// 	ForumModel.getForumSlug(forumSlug)
-	// 		.then( data => {
-	// 			if (data) {
-	// 				forumSlug = data.slug;
-	// 				// существует ли ветка с таким название, если да то 409
-	// 				ThreadModel.getThreadBySlug(req.body['slug'])
-	// 					.then( thread => {
-	// 						if (!thread) {
-	// 							const keyValues = harvestKeyValues(req.body);
-	// 							keyValues['author'] = author;
-	// 							keyValues['forum'] = forumSlug;
-	// 							const columns = harvestColumns(keyValues);
-	// 							for (let i = 0; i < columns.length; i++) {
-	// 								if (columns[i] === 'message' || columns[i] === 'created') {
-	// 									columns[i] = '"' + columns[i] + '"';
-	// 								}
-	// 							}
-	// 							const values = harvestValues(keyValues);
-	// 							ThreadModel.createNewThread(columns, values)
-	// 								.then( newThread => {
-						
-	// 									ForumModel.createForumUserPair(forumSlug, author)
-	// 										.then( () => {
-	// 											console.log('pair created');
-	// 										})
-	// 										.catch( error => {
-	// 											console.log('--------------------------------------------');
-	// 											console.log('ERROR IN creating pair');
-	// 											console.log(error);
-	// 											return res.status(500).json({ message : "crash" })
-	// 										});
-						
-	// 									ForumModel.incrementThreads(forumSlug)
-	// 										.then( () => {
-	// 											newThread.id = parseInt(newThread.id); // pg-promise считает BIGSERIAL строкой хз почему
-	// 											return res.status(201).json(newThread);
-	// 										})
-	// 										.catch( error => {
-	// 											console.log('--------------------------------------------');
-	// 											console.log('ERROR IN threads increment');
-	// 											console.log(error);
-	// 											return res.status(500).json({ message : "crash" })
-	// 										});
-										
-	// 								})
-	// 								.catch( error => {
-	// 									console.log('--------------------------------------------');
-	// 									console.log('ERROR IN CREATING THREAD');
-	// 									console.log(error);
-	// 									return res.status(500).json({ message : "crash" })
-	// 								});	
-	// 						} else {
-	// 							thread.id = parseInt(thread.id); // pg-promise считает BIGSERIAL строкой хз почему
-	// 							return res.status(409).json(thread);
-	// 						}
-	// 					})
-	// 					.catch( error => {
-	// 						console.log('--------------------------------------------');
-	// 						console.log('ERROR IN GETTING USER BY NICK');
-	// 						console.log(error);
-	// 						return res.status(500).json({ message : "crash" })
-	// 					});
-
-	// 			} else {
-	// 				return res.status(404).json({ message : "Can't find forum" });
-	// 			}
-	// 		})
-	// 		.catch( error => {
-	// 			console.log('--------------------------------------------');
-	// 			console.log('ERROR IN GETTING FORUM BY SLUG');
-	// 			console.log(error);
-	// 			return res.status(500).json({ message : "crash" })
-	// 		});
-	// }
 
 	async createThreadInForum (req, res) {
 		let author = req.body['author'];
@@ -262,9 +102,6 @@ class ForumController {
             return res.status(500).json({ message : "crash" })
 		}
 
-
-
-
 		const keyValues = harvestKeyValues(req.body);
 		keyValues['author'] = author.nickname;
 		keyValues['forum'] = forum.slug;
@@ -279,7 +116,7 @@ class ForumController {
 		const result = await ThreadModel.createNewThread(columns, values);
 		if (result) {
 			try {
-				await ForumModel.createForumUserPair(forum.slug, author.nickname)
+				await ForumModel.createForumUserPairUsingForum(forum.slug, author.nickname)
 			} catch (error) {
 				console.log('--------------------------------------------');
 				console.log('ERROR IN creating pair');
@@ -314,20 +151,6 @@ class ForumController {
 
 
  
-		
-
-
-
-
-
-
-
-
-
-
-
-
-
 	getThreads (req, res) {
 		const slug = req.params['slug'];
 		const queryParams = harvestKeyValues(req.query);

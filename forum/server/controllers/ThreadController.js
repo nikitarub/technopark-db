@@ -9,31 +9,33 @@ class ThreadController {
 
     async createPost (req, res){
         let slugOrId = req.params['slug_or_id'];
-        let thread;
+        // let thread;
         if (/^\d+$/.test(slugOrId)) {
-            try {
-                thread = await ThreadModel.getThreadById(parseInt(slugOrId));
-            } catch (error) {
-                console.log('--------------------------------------------');
-                console.log(error);
-                console.log('ERROR IN GETTING THREAD BY ID');
-                return res.status(500).json({ message : "crash" });
-            }
+            await createPostsLoop(req, res, slugOrId, true);    
+            // try {
+            //     thread = await ThreadModel.getThreadById(parseInt(slugOrId));
+            // } catch (error) {
+            //     console.log('--------------------------------------------');
+            //     console.log(error);
+            //     console.log('ERROR IN GETTING THREAD BY ID');
+            //     return res.status(500).json({ message : "crash" });
+            // }
         } else {
-            try {
-                thread = await ThreadModel.getThreadBySlug(slugOrId);
-            } catch (error) {
-                console.log('--------------------------------------------');
-                console.log(error);
-                console.log('ERROR IN GETTING THREAD BY slug');
-                return res.status(500).json({ message : "crash" });
-            }
+            await createPostsLoop(req, res, slugOrId, false);
+            // try {
+            //     thread = await ThreadModel.getThreadBySlug(slugOrId);
+            // } catch (error) {
+            //     console.log('--------------------------------------------');
+            //     console.log(error);
+            //     console.log('ERROR IN GETTING THREAD BY slug');
+            //     return res.status(500).json({ message : "crash" });
+            // }
         }
 
-        if (!thread) {
-            return res.status(404).json({ mesage : 'cant find thread' });
-        }
-        createPostsLoop(req,res, thread);
+        // if (!thread) {
+        //     return res.status(404).json({ mesage : 'cant find thread' });
+        // }
+        // createPostsLoop(req,res, thread);
     }
 
     

@@ -3,15 +3,30 @@ import UserModel from '../models/UserModel.js';
 import PostModel from '../models/PostModel.js';
 import 'babel-polyfill';
 import { valStr, constructPathString } from '../utils.js';
+import ThreadModel from '../models/ThreadModel.js';
 
 
-export const createPostsLoop = async function (req,res, threadData) {
+export const createPostsLoop = async function (req,res, slugOrId, isId) {
     const postsValues = [];
     const creationDate = new Date().toUTCString();
     const newPosts = req.body;
 
     if (!newPosts.length) {
-        return res.status(201).send([]);
+        if (isId) {
+            const thread = await ThreadModel.getThreadById(parseInt(slugOrId));
+            if (thread) {
+                return res.status(201).send([]);
+            } else {
+                return res.status(404).json({ message : 'cant find thread'});
+            }
+        } else {
+            const thread = await ThreadModel.getThreadBySlug(slugOrId);
+            if (thread) {
+                return res.status(201).send([]);
+            } else {
+                return res.status(404).json({ message : 'cant find thread'});
+            }
+        }
     }
 
     for (let post of newPosts) {
@@ -19,44 +34,46 @@ export const createPostsLoop = async function (req,res, threadData) {
         // если был передан id родительский пост
         if (post.parent) {
             // проверяем есть ли родительский пост в системе 
-            try {
-                const parentPost = await PostModel.getPostByIdAndThreadId(post.parent, threadData.id);
-                if (!parentPost) {
-                    return res.status(409).json({ message : 'no parent posts' }); 
-                } else {
-                    post.parent = parentPost.id;
-                }
-            } catch (error) {
-                console.log('--------------------------------------------');
-                console.log('ERROR IN GETTING POST PARENTS');
-                console.log(error);
-                return res.status(500).json({ message : "crash" })
+            // try {
+            const parentPost = await PostModel.getPostByIdAndThreadId(post.parent, slugOrId, isId);
+            if (!parentPost) {
+                return res.status(409).json({ message : 'no parent posts' }); 
+            } else {
+                post.parent = parentPost.id;
             }
+            // } catch (error) {
+            //     console.log('--------------------------------------------');
+            //     console.log('ERROR IN GETTING POST PARENTS');
+            //     console.log(error);
+            //     return res.status(500).json({ message : "crash" })
+            // }
         } else {
             post.parent = null;
         }
         // добавляем юзера в форум 
 
-        const pair = await ForumModel.createForumUserPair(threadData.forum, post.author);
+        await ForumModel.createForumUserPairUsingThread(post.author, slugOrId, isId);
 
         // увеличиваем счетчик постов в форуме 
-        try {
-            await ForumModel.incrementPosts(threadData.forum);
-        } catch (error) {
-            console.log('--------------------------------------------');
-            console.log('ERROR IN threads increment');
-            console.log(error);
-            return res.status(500).json({ message : "crash" })
-        }
-        
+        // try {
+        await ForumModel.incrementPosts(slugOrId, isId);
+        // } catch (error) {
+        //     console.log('--------------------------------------------');
+        //     console.log('ERROR IN threads increment');
+        //     console.log(error);
+        //     return res.status(500).json({ message : "crash" })
+        // }
+
         const postId = await PostModel.getIdForPost();
 
-        post.created = creationDate;
-        post.thread = threadData.id;
-        post.forum = threadData.forum;
+        post.author = `(SELECT nickname FROM users WHERE nickname=${`'` + post.author + `'`})`;
+        post.message = `'` + post.message + `'`;
+        post.created = `'` + creationDate + `'`;
+        post.thread = isId ? slugOrId : `(SELECT id FROM threads WHERE slug='${slugOrId}')`;
+        post.forum = isId ? `(SELECT forum FROM threads WHERE id=${slugOrId})` : `(SELECT forum FROM threads WHERE slug='${slugOrId}')`
         post.id = parseInt(postId.nextval);
         const path = await constructPathToPost(post);
-        post.pathtopost = path;
+        post.pathtopost = `'` + path + `'`;
         postsValues.push(post);
     }
 
@@ -67,7 +84,7 @@ export const createPostsLoop = async function (req,res, threadData) {
     const query = `INSERT INTO posts ` + columns + ` VALUES ` + valuesInStringQuery + ` RETURNING *`;
     // console.log('NOT HERE');
     const addedPosts = await PostModel.createNewPostsByQuery(query);
-    // console.log(addedPosts);
+    // console.log('ADDEDDD POSTS', addedPosts);
     if (addedPosts) {
         for (let post of addedPosts) {
             post.id = parseInt(post.id);
