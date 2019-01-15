@@ -66,7 +66,6 @@
 -- ALTER TABLE forumusers
 -- ADD CONSTRAINT unique_forumuser_pair UNIQUE (forumslug, usernickname);
 
-
 CREATE EXTENSION IF NOT EXISTS CITEXT;
 
 DROP TABLE IF EXISTS users CASCADE;
@@ -155,3 +154,14 @@ ALTER TABLE users SET (autovacuum_enabled = false);
 -- CREATE INDEX IF NOT EXISTS index_posts_thread_id ON posts (thread, id);
 -- CREATE INDEX IF NOT EXISTS users_nickname_index ON users (nickname);
 
+CREATE UNIQUE INDEX IF NOT EXISTS index_users_email ON users(email);
+ 
+CREATE INDEX IF NOT EXISTS index_forums_user ON forums("user");
+ 
+CREATE INDEX IF NOT EXISTS index_threads_forum_created ON threads("created",forum);
+ 
+CREATE INDEX IF NOT EXISTS index_votes_cover ON votes(voice, thread, nickname);
+ 
+CREATE INDEX IF NOT EXISTS index_posts_thread_parent_id ON posts(id, parent, thread); 
+CREATE INDEX IF NOT EXISTS index_posts_thread_id ON posts(id, thread); 
+CREATE INDEX IF NOT EXISTS index_posts_thread_path ON posts(thread, pathtopost); 

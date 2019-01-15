@@ -43,17 +43,17 @@ class ThreadController {
         const voiceValue = req.body.voice;
 
         let author = req.body.nickname;
-        try {
-            author = await UserModel.getUserNickname(author);
-            if (!author) {
-                return res.status(404).json({ message : 'cant find author' }); 
-            }
-        } catch (error) {
-            console.log('--------------------------------------------');
-            console.log('ERROR IN GETTING USER BY NICKNAME');
-            console.log(error);
-            return res.status(500).json({ message : "crash" })
-        }
+        // try {
+        //     author = await UserModel.getUserNickname(author);
+        //     if (!author) {
+        //         return res.status(404).json({ message : 'cant find author' }); 
+        //     }
+        // } catch (error) {
+        //     console.log('--------------------------------------------');
+        //     console.log('ERROR IN GETTING USER BY NICKNAME');
+        //     console.log(error);
+        //     return res.status(500).json({ message : "crash" })
+        // }
 
         let thread;
         if (/^\d+$/.test(slugOrId)) {
@@ -80,23 +80,38 @@ class ThreadController {
             return res.status(404).json({ mesage : 'cant find thread' });
         }
 
-        let votedData;
-        try {
-            votedData = await VoteModel.vote(voiceValue, thread.id, author.nickname)
-        } catch (error) {
-            console.log('--------------------------------------------');
-            console.log(error);
-            console.log('ERROR IN MAKING VOTE');
-            return res.status(500).json({ message : "crash" }); 
-        }
+        // let votedData;
+        // try {
+        const votedData = await VoteModel.vote(voiceValue, thread.id, author);
+        // if (!votedData) {
+        //     return res.status(404).json({message : 'cant find user'});
+        // }
+        // } catch (error) {
+        //     console.log('--------------------------------------------');
+        //     console.log(error);
+        //     console.log('ERROR IN MAKING VOTE');
+        //     return res.status(500).json({ message : "crash" }); 
+        // }
 
         if (votedData) {
             if (votedData.existed) {
                 votedData.voice = votedData.voice === 1 ? votedData.voice + 1 : votedData.voice - 1;
             }
         } else {
-            thread.id = parseInt(thread.id);
-            return res.status(200).json(thread);
+            try {
+                author = await UserModel.getUserNickname(author);
+                if (!author) {
+                    return res.status(404).json({ message : 'cant find author' }); 
+                } else {
+                    thread.id = parseInt(thread.id);
+                    return res.status(200).json(thread);
+                }
+            } catch (error) {
+                console.log('--------------------------------------------');
+                console.log('ERROR IN GETTING USER BY NICKNAME');
+                console.log(error);
+                return res.status(500).json({ message : "crash" })
+            }
         }
 
         let result;

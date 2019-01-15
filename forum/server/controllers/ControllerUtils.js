@@ -14,8 +14,8 @@ export const createPostsLoop = async function (req,res, threadData) {
         return res.status(201).send([]);
     }
 
+    const author = newPosts[0].author;
     for (let post of newPosts) {
-
         // если был передан id родительский пост
         if (post.parent) {
             // проверяем есть ли родительский пост в системе 
@@ -37,20 +37,8 @@ export const createPostsLoop = async function (req,res, threadData) {
         }
         // добавляем юзера в форум 
 
-        const pair = await ForumModel.createForumUserPair(threadData.forum, post.author);
-
-        // увеличиваем счетчик постов в форуме 
-        try {
-            await ForumModel.incrementPosts(threadData.forum);
-        } catch (error) {
-            console.log('--------------------------------------------');
-            console.log('ERROR IN threads increment');
-            console.log(error);
-            return res.status(500).json({ message : "crash" })
-        }
-        
+        // const pair = await ForumModel.createForumUserPair(threadData.forum, post.author);        
         const postId = await PostModel.getIdForPost();
-
         post.created = creationDate;
         post.thread = threadData.id;
         post.forum = threadData.forum;
@@ -65,9 +53,7 @@ export const createPostsLoop = async function (req,res, threadData) {
     const columns = `(author, "message", parent, "created", thread, forum, id, pathtopost)`
     const valuesInStringQuery = valStr(postsValues);
     const query = `INSERT INTO posts ` + columns + ` VALUES ` + valuesInStringQuery + ` RETURNING *`;
-    // console.log('NOT HERE');
     const addedPosts = await PostModel.createNewPostsByQuery(query);
-    // console.log(addedPosts);
     if (addedPosts) {
         for (let post of addedPosts) {
             post.id = parseInt(post.id);
@@ -75,6 +61,17 @@ export const createPostsLoop = async function (req,res, threadData) {
             post.parent = parseInt(post.parent);
             result.push(post);
         }
+        
+        await ForumModel.createForumUserPair(threadData.forum, author);
+        try {
+            await ForumModel.incrementPosts(threadData.forum, newPosts.length);
+        } catch (error) {
+            console.log('--------------------------------------------');
+            console.log('ERROR IN threads increment');
+            console.log(error);
+            return res.status(500).json({ message : "crash" })
+        }
+
         return res.status(201).json(result);
 
     } else {

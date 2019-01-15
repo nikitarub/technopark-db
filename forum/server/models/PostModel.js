@@ -38,6 +38,8 @@ class PostModel {
         }
     }
 
+    // async transactTest (query)
+
     getPostByIdAndThreadId (id, threadId) {
         return dbInstance.oneOrNone(getPostByIdAndThreadIdStatment, [id, threadId])
     }

@@ -38,8 +38,8 @@ class ForumModel {
         return dbInstance.oneOrNone('UPDATE forums SET threads = threads + 1 WHERE slug=$1 RETURNING *', [slug]);
     }
 
-    incrementPosts(slug) {
-        return dbInstance.oneOrNone('UPDATE forums SET posts = posts + 1 WHERE slug=$1 RETURNING *', [slug]);
+    incrementPosts(slug, cnt) {
+        return dbInstance.oneOrNone(`UPDATE forums SET posts = posts + $2 WHERE slug=$1 RETURNING *`, [slug,cnt]);
     }
 
     getUsers (slug, queryParams) {
