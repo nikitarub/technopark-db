@@ -8,6 +8,8 @@ import { createPostsLoop } from './ControllerUtils.js';
 class ThreadController {
 
     async createPost (req, res){
+        // console.log(req.originalUrl, req.method);
+
         let slugOrId = req.params['slug_or_id'];
         let thread;
         if (/^\d+$/.test(slugOrId)) {
@@ -38,6 +40,7 @@ class ThreadController {
 
     
     async voteForThread (req ,res) {
+		// console.log(req.originalUrl, req.method);
 
         const slugOrId = req.params['slug_or_id'];
         const voiceValue = req.body.voice;
@@ -129,12 +132,15 @@ class ThreadController {
     }
 
     getDetails (req, res) {
+        // console.log(req.originalUrl, req.method);
+
         const slugOrId = req.params['slug_or_id'];
         if (/^\d+$/.test(slugOrId)) {
             ThreadModel.getThreadById(parseInt(slugOrId))
                 .then( thread => {
                     if (thread) {
                         thread.id = parseInt(thread.id);
+                        // console.log('thread getDetails', thread);
                         return res.status(200).json(thread);
                     } else {
                         return res.status(404).json({ mesage : 'cant find thread' });
@@ -151,6 +157,7 @@ class ThreadController {
                 .then( thread => {
                     if (thread) {
                         thread.id = parseInt(thread.id);
+                        // console.log('thread getDetails', thread);
                         return res.status(200).json(thread);
                     } else {
                         return res.status(404).json({ mesage : 'cant find thread' });
@@ -166,7 +173,8 @@ class ThreadController {
     }
 
     async getPosts(req, res) {
-        
+        // console.log(req.originalUrl, req.method);
+
         const queryParams = harvestKeyValues(req.query);
         let result = [];
 		if (!queryParams['limit']) {
@@ -243,10 +251,13 @@ class ThreadController {
             
             return resPost;
         })
+        // console.log('thread getPosts',result);
         return res.status(200).json(result);
     }
 
     async updateThread (req, res) {
+        // console.log(req.originalUrl, req.method);
+
         const slugOrId = req.params['slug_or_id'];
         const newData = req.body;
         const keyValues = harvestKeyValues(newData);

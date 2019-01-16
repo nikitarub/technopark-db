@@ -4,41 +4,10 @@ import { harvestColumns, harvestKeyValues } from '../utils.js'
 import 'babel-polyfill';
 
 class UserController {
-    // createUser (req, res) {
-    //     const nickname = req.params['nickname'];
-    //     const email = req.body['email'];
-    //     UserModel.getUserByNicknameOrEmail(nickname, email)
-    //         .then( data => {
-    //             if (data.length === 0) {
-    //                 const newUserData = [
-    //                     nickname,
-    //                     req.body['fullname'],
-    //                     req.body['about'],
-    //                     req.body['email']
-    //                 ];
-    //                 UserModel.createNewUser(newUserData)
-    //                     .then( data => {
-    //                         return res.status(201).json(data);
-    //                     })
-    //                     .catch( error => {
-    //                         console.log('--------------------------------------------');
-    //                         console.log('ERROR IN CREATING');
-    //                         console.log(error);
-    //                     });
-    //             } else {
-    //                 return res.status(409).json(data);
-    //             }
-    //         })
-    //         .catch( error => {
-    //             console.log('--------------------------------------------');
-
-    //             console.log('ERROR IN GETTING USER BY NICK OR EMAIL');
-    //             console.log(error);
-    //             return res.status(500).json({ message : "crash" })
-    //         });
-    // }    
 
     async createUser (req, res) {
+        // console.log(req.originalUrl, req.method);
+
         const nickname = req.params['nickname'];
         const email = req.body['email'];
         const newUserData = [
@@ -68,10 +37,13 @@ class UserController {
 
 
     getUser (req, res) {
+        // console.log(req.originalUrl, req.method);
+
         const nickname = req.params['nickname'];
         UserModel.getUserByNickname(nickname)
             .then( user => {
                 if (user) {
+                    // console.log('getUser', user);
                     return res.status(200).json(user);
                 }                
                 return res.status(404).json({ message : "Can't find user" })
@@ -86,6 +58,8 @@ class UserController {
 
     
     async updateUser (req, res) {
+        // console.log(req.originalUrl, req.method);
+
         const nickname = req.params['nickname'];
         const newData = req.body;
 

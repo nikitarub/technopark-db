@@ -36,6 +36,7 @@ export const createPostsLoop = async function (req,res, threadData) {
             post.parent = null;
         }
         // добавляем юзера в форум 
+        await ForumModel.createForumUserPair(threadData.forum, post.author);
 
         // const pair = await ForumModel.createForumUserPair(threadData.forum, post.author);        
         const postId = await PostModel.getIdForPost();
@@ -62,7 +63,7 @@ export const createPostsLoop = async function (req,res, threadData) {
             result.push(post);
         }
         
-        await ForumModel.createForumUserPair(threadData.forum, author);
+        // await ForumModel.createForumUserPair(threadData.forum, author);
         try {
             await ForumModel.incrementPosts(threadData.forum, newPosts.length);
         } catch (error) {

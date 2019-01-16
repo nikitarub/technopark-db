@@ -9,6 +9,8 @@ import 'babel-polyfill';
 
 class PostController {
     async getDetails (req, res) {
+        // console.log(req.originalUrl, req.method);
+
         const postId = req.params['id'];
         const result = {};
 
@@ -62,16 +64,17 @@ class PostController {
                 }
             }
         }
-
-
         postData.id = parseInt(postData.id);
         postData.thread = parseInt(postData.thread);
-
+        postData.parent = parseInt(postData.parent);
         result.post = postData;
+        // console.log('post getDetails',result);
         return res.status(200).json(result);
     }
 
     async updateDetails (req, res) {
+        // console.log(req.originalUrl, req.method);
+
         const postId = req.params['id'];
         const newData = req.body;
 
