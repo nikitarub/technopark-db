@@ -65,16 +65,9 @@ ADD CONSTRAINT uniqueThreadNickname UNIQUE(nickname, thread);
 ALTER TABLE forumusers
 ADD CONSTRAINT unique_forumuser_pair UNIQUE (forumslug, usernickname);
 
--- ALTER TABLE posts SET (autovacuum_enabled = false);
--- ALTER TABLE threads SET (autovacuum_enabled = false);
--- ALTER TABLE votes SET (autovacuum_enabled = false);
--- ALTER TABLE forumusers SET (autovacuum_enabled = false);
--- ALTER TABLE forums SET (autovacuum_enabled = false);
--- ALTER TABLE users SET (autovacuum_enabled = false);
-
 CREATE INDEX IF NOT EXISTS email_users_index ON users(email);
  
-CREATE INDEX IF NOT EXISTS user_index_forums ON forums("user");
+CREATE INDEX IF NOT EXISTS user_forums_index ON forums("user");
  
 CREATE INDEX IF NOT EXISTS created_forum_index ON threads(forum, "created");
 
@@ -82,6 +75,8 @@ CREATE INDEX IF NOT EXISTS forum_index ON threads(forum);
  
 CREATE INDEX IF NOT EXISTS voice_thread_nickname_index ON votes(voice, thread, nickname);
  
-CREATE INDEX IF NOT EXISTS posts_pathtopost_thread_index ON posts(thread, pathtopost); 
+CREATE INDEX IF NOT EXISTS posts_pathtopost_thread_index ON posts(thread, pathtopost);
+
 CREATE INDEX IF NOT EXISTS posts_parent_thread_index ON posts(parent, thread);
+
 CREATE INDEX IF NOT EXISTS posts_id_thread_index ON posts(thread, id);
