@@ -79,36 +79,6 @@ class ForumModel {
             console.log('ERROR IN getUsers');
             console.log(error);
         }
-        // slug = `(SELECT slug FROM forums WHERE slug='${slug}')`
-        // let query;
-        // if (queryParams.since && !queryParams.desc) {
-        //     query = pgp.as.format(`
-        //     SELECT * FROM forumusers AS FU
-        //     JOIN users AS U ON FU.usernickname = U.nickname
-        //     WHERE FU.forumslug=$1:raw AND U.nickname>$2
-        //     `,[slug, queryParams.since]);
-        // } else if (queryParams.since && queryParams.desc){
-        //     query = pgp.as.format(`
-        //     SELECT * FROM forumusers AS FU
-        //     JOIN users AS U ON FU.usernickname = U.nickname
-        //     WHERE FU.forumslug=$1:raw AND U.nickname<$2
-        //     `, [slug, queryParams.since]);
-        // } else {
-        //     query = pgp.as.format(`
-        //     SELECT * FROM forumusers AS FU
-        //     JOIN users AS U ON FU.usernickname = U.nickname
-        //     WHERE FU.forumslug=$1:raw`, [slug]);
-        // }
-
-        // return dbInstance.manyOrNone(`$1:raw 
-        //     ORDER BY $2:raw LIMIT $3`,
-        //     [
-        //         query.toString(),
-        //         (queryParams.desc ? 'U.nickname DESC' : 'U.nickname ASC'),
-        //         queryParams.limit
-
-        //     ]
-        //     )
     }
 }
 

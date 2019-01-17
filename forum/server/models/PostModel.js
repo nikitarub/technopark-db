@@ -109,46 +109,6 @@ class PostModel {
             console.log('Error in flat sort');
             console.log(error);
         }
-
-
-        // const threadId = isId ? slugOrId : `(SELECT id FROM threads WHERE slug='${slugOrId})'`;
-        // if ( queryParams.since ) {
-        //     if (queryParams.desc) {
-        //         return dbInstance.manyOrNone(`SELECT * FROM posts WHERE thread=$1:raw AND id<$2
-        //         ORDER BY "created" DESC, id DESC LIMIT $3`, 
-        //         [
-        //             threadId,
-        //             queryParams.since,
-        //             queryParams.limit
-        //         ]);
-        //     } else {
-        //         return dbInstance.manyOrNone(`SELECT * FROM posts WHERE thread=$1:raw AND id>$2
-        //         ORDER BY "created" ASC, id ASC LIMIT $3`, 
-        //         [
-        //             threadId,
-        //             queryParams.since,
-        //             queryParams.limit
-        //         ]);
-        //     }
-        // } else {
-        //     if (queryParams.desc) {
-        //         return dbInstance.manyOrNone(`SELECT * FROM posts WHERE thread=$1:raw
-        //         ORDER BY "created" DESC, id DESC LIMIT $3`, 
-        //         [
-        //             threadId,
-        //             queryParams.since,
-        //             queryParams.limit
-        //         ]);
-        //     } else {
-        //         return dbInstance.manyOrNone(`SELECT * FROM posts WHERE thread=$1:raw
-        //         ORDER BY "created" ASC, id ASC LIMIT $3`, 
-        //         [
-        //             threadId,
-        //             queryParams.since,
-        //             queryParams.limit
-        //         ]);
-        //     }
-        // }
     }
 
     async treeSort (slugOrId, isId, queryParams) {
@@ -193,42 +153,6 @@ class PostModel {
             console.log('Error in tree sort');
             console.log(error);
         }
-
-
-
-        // const threadId = isId ? slugOrId : `(SELECT id FROM threads WHERE slug='${slugOrId}')`;
-        // const pathSortRule = queryParams.desc ? 'pathtopost DESC' : 'pathtopost ASC';
-        // if (queryParams.since && !queryParams.desc) {
-        //     return dbInstance.manyOrNone(`SELECT * FROM posts
-        //     WHERE thread=$1:raw AND pathtopost > (SELECT pathtopost FROM posts WHERE id=$2)
-        //     ORDER BY $3:raw LIMIT $4`,
-        //     [
-        //         threadId,
-        //         queryParams.since,
-        //         pathSortRule,
-        //         queryParams.limit
-        //     ]);   
-        // } else if (queryParams.since && queryParams.desc) {
-        //     return dbInstance.manyOrNone(`SELECT * FROM posts
-        //     WHERE thread=$1:raw AND pathtopost < (SELECT pathtopost FROM posts WHERE id=$2)
-        //     ORDER BY $3:raw LIMIT $4`,
-        //     [
-        //         threadId,
-        //         queryParams.since,
-        //         pathSortRule,
-        //         queryParams.limit
-        //     ]);   
-        // } else if (!queryParams.since) {
-        //     return dbInstance.manyOrNone(`SELECT * FROM posts
-        //     WHERE thread=$1:raw 
-        //     ORDER BY $2:raw LIMIT $3`,
-        //     [
-        //         threadId,
-        //         pathSortRule,
-        //         queryParams.limit
-        //     ]);   
-        // }
-
     }
 
     async parentTreeSort (slugOrId, isId, queryParams) {
@@ -298,67 +222,6 @@ class PostModel {
             console.log('Error in tree sort');
             console.log(error);
         }
-
-
-
-        // const threadId = isId ? slugOrId : `(SELECT id FROM threads WHERE slug='${slugOrId}')`;
-        // const pathSortRule = queryParams.desc ? 'pid.parent_id DESC, pathtopost ASC' : 'pathtopost ASC';
-        // const idSortRule = queryParams.desc ? 'id DESC' : 'id ASC'
-        // if (queryParams.since && !queryParams.desc) {
-        //     return dbInstance.manyOrNone(
-        //         `SELECT * FROM posts
-        //         JOIN (
-        //             SELECT id AS parent_id FROM posts WHERE parent IS NULL AND thread=$1:raw AND pathtopost[1] > (SELECT pathtopost[1] FROM posts WHERE id=$2)
-        //             ORDER BY $3:raw LIMIT $4
-        //         ) AS pid
-        //         ON (thread=$1 AND pid.parent_id=pathtopost[1])
-        //         ORDER BY $5:raw
-        //         `,
-        //         [
-        //             threadId,
-        //             queryParams.since,
-        //             idSortRule,
-        //             queryParams.limit,
-        //             pathSortRule
-        //         ]
-        //     );
-        // } else if (queryParams.since && queryParams.desc){
-        //     return dbInstance.manyOrNone(
-        //         `SELECT * FROM posts
-        //         JOIN (
-        //             SELECT id AS parent_id FROM posts WHERE parent IS NULL AND thread=$1:raw AND pathtopost[1] < (SELECT pathtopost[1] FROM posts WHERE id=$2)
-        //             ORDER BY $3:raw LIMIT $4
-        //         ) AS pid
-        //         ON (thread=$1 AND pid.parent_id=pathtopost[1])
-        //         ORDER BY $5:raw
-        //         `,
-        //         [
-        //             threadId,
-        //             queryParams.since,
-        //             idSortRule,
-        //             queryParams.limit,
-        //             pathSortRule
-        //         ]
-        //     );   
-        // } else if (!queryParams.since) {
-        //     return dbInstance.manyOrNone(
-        //         `SELECT * FROM posts
-        //         JOIN (
-        //             SELECT id AS parent_id FROM posts WHERE parent IS NULL AND thread=$1:raw
-        //             ORDER BY $3:raw LIMIT $4
-        //         ) AS pid
-        //         ON (thread=$1 AND pid.parent_id=pathtopost[1])
-        //         ORDER BY $5:raw
-        //         `,
-        //         [
-        //             threadId,
-        //             queryParams.since,
-        //             idSortRule,
-        //             queryParams.limit,
-        //             pathSortRule
-        //         ]
-        //     );    
-        // }
     }
 }
 

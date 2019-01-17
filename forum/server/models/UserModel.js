@@ -30,14 +30,6 @@ class UserModel {
         }
     }
 
-    // async updateUser(nickname,columns, keyValues) {
-
-    //     const query = pgp.helpers.update(keyValues, columns, {table: 'users'}, null, {emptyUpdate: 'conflict'}) + " WHERE \"nickname\" = \'" +  nickname + "\' RETURNING *";
-    //     console.log("QUERY", query);
-    //     return await dbInstance.oneOrNone(query);
-    // }
-
-
     async updateUser(nickname,columns, keyValues) {
         try {
             const query = pgp.helpers.update(keyValues, columns, {table: 'users'}, null, {emptyUpdate: 'conflict'}) + " WHERE \"nickname\" = \'" +  nickname + "\' RETURNING *";            
