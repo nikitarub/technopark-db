@@ -42,36 +42,73 @@ class ForumModel {
         return dbInstance.oneOrNone(`UPDATE forums SET posts = posts + $2 WHERE slug=$1 RETURNING *`, [slug,cnt]);
     }
 
-    getUsers (slug, queryParams) {
-        let query;
-        if (queryParams.since && !queryParams.desc) {
-            query = pgp.as.format(`
-            SELECT * FROM forumusers AS FU
-            JOIN users AS U ON FU.usernickname = U.nickname
-            WHERE FU.forumslug=$1 AND U.nickname>$2
-            `,[slug, queryParams.since]);
-        } else if (queryParams.since && queryParams.desc){
-            query = pgp.as.format(`
-            SELECT * FROM forumusers AS FU
-            JOIN users AS U ON FU.usernickname = U.nickname
-            WHERE FU.forumslug=$1 AND U.nickname<$2
-            `, [slug, queryParams.since]);
-        } else {
-            query = pgp.as.format(`
-            SELECT * FROM forumusers AS FU
-            JOIN users AS U ON FU.usernickname = U.nickname
-            WHERE FU.forumslug=$1`, [slug]);
+    async getUsers (slug, queryParams) {
+        try {
+            slug = `(SELECT slug FROM forums WHERE slug='${slug}')`
+            let query;
+            if (queryParams.since && !queryParams.desc) {
+                query = pgp.as.format(`
+                SELECT * FROM forumusers AS FU
+                JOIN users AS U ON FU.usernickname = U.nickname
+                WHERE FU.forumslug=$1:raw AND U.nickname>$2
+                `,[slug, queryParams.since]);
+            } else if (queryParams.since && queryParams.desc){
+                query = pgp.as.format(`
+                SELECT * FROM forumusers AS FU
+                JOIN users AS U ON FU.usernickname = U.nickname
+                WHERE FU.forumslug=$1:raw AND U.nickname<$2
+                `, [slug, queryParams.since]);
+            } else {
+                query = pgp.as.format(`
+                SELECT * FROM forumusers AS FU
+                JOIN users AS U ON FU.usernickname = U.nickname
+                WHERE FU.forumslug=$1:raw`, [slug]);
+            }
+    
+            return await dbInstance.manyOrNone(`$1:raw 
+                ORDER BY $2:raw LIMIT $3`,
+                [
+                    query.toString(),
+                    (queryParams.desc ? 'U.nickname DESC' : 'U.nickname ASC'),
+                    queryParams.limit
+    
+                ]
+                )
+        } catch (error) {
+            console.log('--------------------------------------------');
+            console.log('ERROR IN getUsers');
+            console.log(error);
         }
+        // slug = `(SELECT slug FROM forums WHERE slug='${slug}')`
+        // let query;
+        // if (queryParams.since && !queryParams.desc) {
+        //     query = pgp.as.format(`
+        //     SELECT * FROM forumusers AS FU
+        //     JOIN users AS U ON FU.usernickname = U.nickname
+        //     WHERE FU.forumslug=$1:raw AND U.nickname>$2
+        //     `,[slug, queryParams.since]);
+        // } else if (queryParams.since && queryParams.desc){
+        //     query = pgp.as.format(`
+        //     SELECT * FROM forumusers AS FU
+        //     JOIN users AS U ON FU.usernickname = U.nickname
+        //     WHERE FU.forumslug=$1:raw AND U.nickname<$2
+        //     `, [slug, queryParams.since]);
+        // } else {
+        //     query = pgp.as.format(`
+        //     SELECT * FROM forumusers AS FU
+        //     JOIN users AS U ON FU.usernickname = U.nickname
+        //     WHERE FU.forumslug=$1:raw`, [slug]);
+        // }
 
-        return dbInstance.manyOrNone(`$1:raw 
-            ORDER BY $2:raw LIMIT $3`,
-            [
-                query.toString(),
-                (queryParams.desc ? 'U.nickname DESC' : 'U.nickname ASC'),
-                queryParams.limit
+        // return dbInstance.manyOrNone(`$1:raw 
+        //     ORDER BY $2:raw LIMIT $3`,
+        //     [
+        //         query.toString(),
+        //         (queryParams.desc ? 'U.nickname DESC' : 'U.nickname ASC'),
+        //         queryParams.limit
 
-            ]
-            )
+        //     ]
+        //     )
     }
 }
 

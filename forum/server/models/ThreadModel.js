@@ -38,32 +38,64 @@ class ThreadModel {
         return dbInstance.oneOrNone('SELECT * FROM threads WHERE id=$1', [id])
     }
 
-    getThreadsByForumSlug (forumSlug, queryParams) {
-        queryParams.desc = queryParams.desc === 'true'
-        if (queryParams.since && !queryParams.desc) {
-            return dbInstance.manyOrNone('SELECT * FROM threads WHERE forum=$1 AND "created">=$2 ORDER BY $3:raw LIMIT $4', 
-            [
-                forumSlug,
-                queryParams.since,
-                (queryParams.desc ? '"created" DESC' : '"created" ASC'),
-                queryParams.limit
-            ]);
-        } else if (queryParams.since && queryParams.desc) {
-            return dbInstance.manyOrNone('SELECT * FROM threads WHERE forum=$1 AND "created"<=$2 ORDER BY $3:raw LIMIT $4', 
-            [
-                forumSlug,
-                queryParams.since,
-                (queryParams.desc ? '"created" DESC' : '"created" ASC'),
-                queryParams.limit
-            ]);
-        } else if (!queryParams.since) {
-            return dbInstance.manyOrNone('SELECT * FROM threads WHERE forum=$1 ORDER BY $2:raw LIMIT $3', 
-            [
-                forumSlug,
-                (queryParams.desc ? '"created" DESC' : '"created" ASC'),
-                queryParams.limit
-            ]);
+    async getThreadsByForumSlug (forumSlug, queryParams) {
+        try {
+            queryParams.desc = queryParams.desc === 'true'
+            if (queryParams.since && !queryParams.desc) {
+                return await dbInstance.manyOrNone('SELECT * FROM threads WHERE forum=$1 AND "created">=$2 ORDER BY $3:raw LIMIT $4', 
+                [
+                    forumSlug,
+                    queryParams.since,
+                    (queryParams.desc ? '"created" DESC' : '"created" ASC'),
+                    queryParams.limit
+                ]);
+            } else if (queryParams.since && queryParams.desc) {
+                return await dbInstance.manyOrNone('SELECT * FROM threads WHERE forum=$1 AND "created"<=$2 ORDER BY $3:raw LIMIT $4', 
+                [
+                    forumSlug,
+                    queryParams.since,
+                    (queryParams.desc ? '"created" DESC' : '"created" ASC'),
+                    queryParams.limit
+                ]);
+            } else if (!queryParams.since) {
+                return await dbInstance.manyOrNone('SELECT * FROM threads WHERE forum=$1 ORDER BY $2:raw LIMIT $3', 
+                [
+                    forumSlug,
+                    (queryParams.desc ? '"created" DESC' : '"created" ASC'),
+                    queryParams.limit
+                ]);
+            }
+
+        } catch (error) {
+            console.log('--------------------------------------------');
+            console.log('ERROR IN getThreadsByForumSlug');
+            console.log(error);
         }
+        // queryParams.desc = queryParams.desc === 'true'
+        // if (queryParams.since && !queryParams.desc) {
+        //     return await dbInstance.manyOrNone('SELECT * FROM threads WHERE forum=$1 AND "created">=$2 ORDER BY $3:raw LIMIT $4', 
+        //     [
+        //         forumSlug,
+        //         queryParams.since,
+        //         (queryParams.desc ? '"created" DESC' : '"created" ASC'),
+        //         queryParams.limit
+        //     ]);
+        // } else if (queryParams.since && queryParams.desc) {
+        //     return await dbInstance.manyOrNone('SELECT * FROM threads WHERE forum=$1 AND "created"<=$2 ORDER BY $3:raw LIMIT $4', 
+        //     [
+        //         forumSlug,
+        //         queryParams.since,
+        //         (queryParams.desc ? '"created" DESC' : '"created" ASC'),
+        //         queryParams.limit
+        //     ]);
+        // } else if (!queryParams.since) {
+        //     return await dbInstance.manyOrNone('SELECT * FROM threads WHERE forum=$1 ORDER BY $2:raw LIMIT $3', 
+        //     [
+        //         forumSlug,
+        //         (queryParams.desc ? '"created" DESC' : '"created" ASC'),
+        //         queryParams.limit
+        //     ]);
+        // }
     }
 
     incrementVotesBySlug (slug, voice) {
