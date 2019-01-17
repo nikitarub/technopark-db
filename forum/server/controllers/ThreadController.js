@@ -46,17 +46,6 @@ class ThreadController {
         const voiceValue = req.body.voice;
 
         let author = req.body.nickname;
-        // try {
-        //     author = await UserModel.getUserNickname(author);
-        //     if (!author) {
-        //         return res.status(404).json({ message : 'cant find author' }); 
-        //     }
-        // } catch (error) {
-        //     console.log('--------------------------------------------');
-        //     console.log('ERROR IN GETTING USER BY NICKNAME');
-        //     console.log(error);
-        //     return res.status(500).json({ message : "crash" })
-        // }
 
         let thread;
         if (/^\d+$/.test(slugOrId)) {
@@ -83,18 +72,7 @@ class ThreadController {
             return res.status(404).json({ mesage : 'cant find thread' });
         }
 
-        // let votedData;
-        // try {
         const votedData = await VoteModel.vote(voiceValue, thread.id, author);
-        // if (!votedData) {
-        //     return res.status(404).json({message : 'cant find user'});
-        // }
-        // } catch (error) {
-        //     console.log('--------------------------------------------');
-        //     console.log(error);
-        //     console.log('ERROR IN MAKING VOTE');
-        //     return res.status(500).json({ message : "crash" }); 
-        // }
 
         if (votedData) {
             if (votedData.existed) {
@@ -186,59 +164,32 @@ class ThreadController {
         queryParams['since'] = parseInt(queryParams['since']);
 
         const slugOrId = req.params['slug_or_id'];
-        let thread;
+        let isId;
         if (/^\d+$/.test(slugOrId)) {
-            try {
-                thread = await ThreadModel.getThreadById(parseInt(slugOrId));
-            } catch (error) {
-                console.log('--------------------------------------------');
-                console.log(error);
-                console.log('ERROR IN GETTING THREAD BY ID');
-                return res.status(500).json({ message : "crash" });
-            }
+            isId = true;
         } else {
-            try {
-                thread = await ThreadModel.getThreadBySlug(slugOrId);
-            } catch (error) {
-                console.log('--------------------------------------------');
-                console.log(error);
-                console.log('ERROR IN GETTING THREAD BY ID');
-                return res.status(500).json({ message : "crash" });
-            }
+            isId = false
         }
 
-        if (!thread) {
-            return res.status(404).json({ mesage : 'cant find thread' });
-        }
 
         if (queryParams.sort === 'flat' || !queryParams.sort) {
-            try {
-                result = await PostModel.flatSort(thread.id, queryParams);
-            } catch (error) {
-                console.log('--------------------------------------------');
-                console.log(error);
-                console.log('ERROR IN flat sort');
-                return res.status(500).json({ message : "crash" });
-            }
+            result = await PostModel.flatSort(slugOrId, isId, queryParams);
         } else if (queryParams.sort === 'tree') {
-            try {
-                result = await PostModel.treeSort(thread.id, queryParams);
-            } catch (error) {
-                console.log('--------------------------------------------');
-                console.log(error);
-                console.log('ERROR IN tree sort');
-                return res.status(500).json({ message : "crash" });
-            }
+            result = await PostModel.treeSort(slugOrId, isId, queryParams);
         } else if (queryParams.sort === 'parent_tree') {
-            try {
-                result = await PostModel.parentTreeSort(thread.id, queryParams);
-            } catch (error) {
-                console.log('--------------------------------------------');
-                console.log(error);
-                console.log('ERROR IN parent tree');
-                return res.status(500).json({ message : "crash" });
+            result = await PostModel.parentTreeSort(slugOrId, isId, queryParams);
+        }
+
+        if (!result || !result.length) {
+            const thread = isId ? await ThreadModel.getThreadById(parseInt(slugOrId)) : await ThreadModel.getThreadBySlug(slugOrId);
+            if (!thread) {
+                return res.status(404).json({ mesage : 'cant find thread' });
+            } else {
+                return res.status(200).json(result);
             }
         }
+
+
         result = result.map( (post) => {
             const resPost = {};
             resPost['author'] = post.author;
@@ -251,7 +202,6 @@ class ThreadController {
             
             return resPost;
         })
-        // console.log('thread getPosts',result);
         return res.status(200).json(result);
     }
 
