@@ -2,11 +2,12 @@ import ForumModel from '../models/ForumModel.js';
 import UserModel from '../models/UserModel.js';
 import PostModel from '../models/PostModel.js';
 import 'babel-polyfill';
-import { valStr, constructPathString } from '../utils.js';
+import { valStr, constructPathString, createPaireQuery } from '../utils.js';
 
 
 export const createPostsLoop = async function (req,res, threadData) {
     const postsValues = [];
+    const forumUserPairValues = [];
     const creationDate = new Date().toUTCString();
     const newPosts = req.body;
 
@@ -36,7 +37,9 @@ export const createPostsLoop = async function (req,res, threadData) {
             post.parent = null;
         }
         // добавляем юзера в форум 
-        await ForumModel.createForumUserPair(threadData.forum, post.author);
+        forumUserPairValues.push([post.author, threadData.forum]);
+        // await ForumModel.createForumUserPair(threadData.forum, post.author);
+
 
         // const pair = await ForumModel.createForumUserPair(threadData.forum, post.author);        
         const postId = await PostModel.getIdForPost();
@@ -62,10 +65,17 @@ export const createPostsLoop = async function (req,res, threadData) {
             post.parent = parseInt(post.parent);
             result.push(post);
         }
-        
+
+
+        const pairColumns = `(usernickname, forumslug)`;
+        const stringPairValues = createPaireQuery(forumUserPairValues);
+        const pairQuery = `INSERT INTO forumusers ` + pairColumns + ` VALUES ` + stringPairValues + ` ON CONFLICT ON CONSTRAINT unique_forumuser_pair DO NOTHING RETURNING *`;
+        console.log(pairQuery);
         // await ForumModel.createForumUserPair(threadData.forum, author);
         try {
             await ForumModel.incrementPosts(threadData.forum, newPosts.length);
+            await ForumModel.createForumUserPairByQuery(pairQuery);
+            // await ForumModel.createForumUserPair(threadData.forum, post.author);
         } catch (error) {
             console.log('--------------------------------------------');
             console.log('ERROR IN threads increment');

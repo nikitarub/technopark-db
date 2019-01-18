@@ -97,3 +97,14 @@ export const forumSerializer = function (forumsArray) {
     }
     return result;
 }
+
+export const createPaireQuery = function (pairs) {
+    let resultQuery = ``;
+    for (let i = 0; i < pairs.length; i++) {
+        resultQuery += `((SELECT nickname FROM users WHERE nickname='${pairs[i][0]}'), '${pairs[i][1]}')`;
+        if (i !== pairs.length - 1) {
+            resultQuery +=`, `;
+        }
+    }
+    return resultQuery;
+}

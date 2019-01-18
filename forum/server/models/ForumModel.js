@@ -34,6 +34,17 @@ class ForumModel {
         }
     }
 
+    async createForumUserPairByQuery(query) {
+        // console.log('SEARCH',forumSlug, nickname);
+        try {
+            return await dbInstance.oneOrNone(query); 
+        } catch (error) {
+            console.log('--------------------------------------------');
+            console.log('ERROR IN CREATING THREAD');
+            console.log(error);
+        }
+    }
+
     incrementThreads(slug) {
         return dbInstance.oneOrNone('UPDATE forums SET threads = threads + 1 WHERE slug=$1 RETURNING *', [slug]);
     }
