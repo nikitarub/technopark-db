@@ -5,14 +5,14 @@ import 'babel-polyfill';
 import { valStr, constructPathString, createPaireQuery } from '../utils.js';
 
 
-export const createPostsLoop = async function (req,res, threadData) {
+export const createPostsLoop = async function (request, reply, threadData) {
     const postsValues = [];
     const forumUserPairValues = [];
     const creationDate = new Date().toUTCString();
-    const newPosts = req.body;
+    const newPosts = request.body;
 
     if (!newPosts.length) {
-        return res.status(201).send([]);
+        return reply.status(201).send([]);
     }
 
     const author = newPosts[0].author;
@@ -23,7 +23,7 @@ export const createPostsLoop = async function (req,res, threadData) {
             try {
                 const parentPost = await PostModel.getPostByIdAndThreadId(post.parent, threadData.id);
                 if (!parentPost) {
-                    return res.status(409).json({ message : 'no parent posts' }); 
+                    return reply.status(409).send({ message : 'no parent posts' }); 
                 } else {
                     post.parent = parentPost.id;
                 }
@@ -31,7 +31,7 @@ export const createPostsLoop = async function (req,res, threadData) {
                 console.log('--------------------------------------------');
                 console.log('ERROR IN GETTING POST PARENTS');
                 console.log(error);
-                return res.status(500).json({ message : "crash" })
+                return reply.status(500).send({ message : "crash" })
             }
         } else {
             post.parent = null;
@@ -70,7 +70,6 @@ export const createPostsLoop = async function (req,res, threadData) {
         const pairColumns = `(usernickname, forumslug)`;
         const stringPairValues = createPaireQuery(forumUserPairValues);
         const pairQuery = `INSERT INTO forumusers ` + pairColumns + ` VALUES ` + stringPairValues + ` ON CONFLICT ON CONSTRAINT unique_forumuser_pair DO NOTHING RETURNING *`;
-        console.log(pairQuery);
         // await ForumModel.createForumUserPair(threadData.forum, author);
         try {
             await ForumModel.incrementPosts(threadData.forum, newPosts.length);
@@ -80,13 +79,13 @@ export const createPostsLoop = async function (req,res, threadData) {
             console.log('--------------------------------------------');
             console.log('ERROR IN threads increment');
             console.log(error);
-            return res.status(500).json({ message : "crash" })
+            return reply.status(500).send({ message : "crash" })
         }
 
-        return res.status(201).json(result);
+        return reply.status(201).send(result);
 
     } else {
-        return res.status(404).json({ message : 'cant find author' });
+        return reply.status(404).send({ message : 'cant find author' });
     }
 }
 

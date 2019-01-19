@@ -2,7 +2,6 @@ import ForumModel from '../models/ForumModel.js';
 import UserModel from '../models/UserModel.js';
 import ThreadModel from '../models/ThreadModel.js';
 import { harvestValues, harvestColumns, harvestKeyValues, idToInt, forumSerializer } from '../utils.js';
-import { parse } from 'url';
 import 'babel-polyfill';
 
 
@@ -10,22 +9,22 @@ import 'babel-polyfill';
 
 class ForumController {
 
-	async createForum (req, res) {
+	async createForum (request, reply) {
 		// console.log(req.originalUrl, req.method);
-		let user = req.body['user'];
-		const slug = req.body['slug'];
-		const title = req.body['title'];
+		let user = request.body['user'];
+		const slug = request.body['slug'];
+		const title = request.body['title'];
 
 		try {
             user = await UserModel.getUserNickname(user);
             if (!user) {
-                return res.status(404).json({ message : "Can't find user" })
+                return reply.status(404).send({ message : "Can't find user" })
             }
         } catch (error) {
             console.log('--------------------------------------------');
             console.log('ERROR IN GETTING USER BY NICK');
             console.log(error);
-            return res.status(500).json({ message : "crash" })
+            return reply.status(500).send({ message : "crash" })
 		}
 
 		const newForumData = [
@@ -36,77 +35,74 @@ class ForumController {
 		const result = await ForumModel.createNewForum(newForumData);
 
 		if (result) {
-			return res.status(201).json(result);
+			return reply.status(201).send(result);
 		} else {
 			let exsistingForum;
 			try {
 				exsistingForum = await ForumModel.getForumBySlug(slug);
-				return res.status(409).json(exsistingForum)
+				return reply.status(409).send(exsistingForum)
 			} catch (error) {
 				console.log('--------------------------------------------');
 				console.log('ERROR IN GETTING FORUM BY SLUG');
 				console.log(error);
-				return res.status(500).json({ message : "crash" })
+				return reply.status(500).send({ message : "crash" })
 			}
 
 		}
 	}
 
-	getDetails (req, res) {
+	getDetails (request, reply) {
 		// console.log(req.originalUrl, req.method);
-		const slug = req.params['slug'];
+		const slug = request.params['slug'];
 		ForumModel.getForumBySlug(slug)
 			.then( data => {
 				if (data) {
 					// console.log('forum getDetails',data);
-					return res.status(200).json(data);
+					return reply.status(200).send(data);
 				}
-				return res.status(404).json({ message : 'cant find forum' });
+				return reply.status(404).send({ message : 'cant find forum' });
 			})
 			.catch( error => {
 				console.log('--------------------------------------------');
 				console.log('ERROR IN GETTING FORUM BY SLUG');
                 console.log(error);
-                return res.status(500).json({ message : "crash" })
+                return reply.status(500).send({ message : "crash" })
 			});
 
 
 	}
 
-	async createThreadInForum (req, res) {
+	async createThreadInForum (request, reply) {
 		// console.log(req.originalUrl, req.method);
-		let author = req.body['author'];
-		let forumSlug = req.params['slug'];
+		let author = request.body['author'];
+		let forumSlug = request.params['slug'];
 		let forum;
 
         try {
-            author = await UserModel.getUserNickname(author);
+			author = await UserModel.getUserNickname(author);
             if (!author) {
-                return res.status(404).json({ message : "Can't find user" })
+                return reply.status(404).send({ message : "Can't find user" })
             }
         } catch (error) {
             console.log('--------------------------------------------');
             console.log('ERROR IN GETTING USER BY NICK');
             console.log(error);
-            return res.status(500).json({ message : "crash" })
+            return reply.status(500).send({ message : "crash" })
 		}
 
 		try {
-            forum = await ForumModel.getForumSlug(forumSlug);
+			forum = await ForumModel.getForumSlug(forumSlug);
             if (!forum) {
-                return res.status(404).json({ message : "Can't find forum" })
+                return reply.status(404).send({ message : "Can't find forum" })
             }
         } catch (error) {
             console.log('--------------------------------------------');
             console.log('ERROR IN GETTING FORUM BY SLUG');
             console.log(error);
-            return res.status(500).json({ message : "crash" })
+            return reply.status(500).send({ message : "crash" })
 		}
 
-
-
-
-		const keyValues = harvestKeyValues(req.body);
+		const keyValues = harvestKeyValues(request.body);
 		keyValues['author'] = author.nickname;
 		keyValues['forum'] = forum.slug;
 		
@@ -125,30 +121,30 @@ class ForumController {
 				console.log('--------------------------------------------');
 				console.log('ERROR IN creating pair');
 				console.log(error);
-				return res.status(500).json({ message : "crash" })
+				return reply.status(500).send({ message : "crash" })
 			} 
 
 			try {
 				await ForumModel.incrementThreads(forum.slug);
 				result.id = parseInt(result.id);
-				return res.status(201).json(result);
+				return reply.status(201).send(result);
 			} catch (error) {
 				console.log('--------------------------------------------');
 				console.log('ERROR IN threads increment');
 				console.log(error);
-				return res.status(500).json({ message : "crash" })
+				return reply.status(500).send({ message : "crash" })
 			} 
 		} else {
 			let exsistingThread;
 			try {
-				exsistingThread = await ThreadModel.getThreadBySlug(req.body['slug']);
+				exsistingThread = await ThreadModel.getThreadBySlug(request.body['slug']);
 				exsistingThread.id = parseInt(exsistingThread.id);
-				return res.status(409).json(exsistingThread)
+				return reply.status(409).send(exsistingThread)
 			} catch (error) {
 				console.log('--------------------------------------------');
 				console.log('ERROR IN GETTING THREAD BY SLUG !!!!');
 				console.log(error);
-				return res.status(500).json({ message : "crash" })
+				return reply.status(500).send({ message : "crash" })
 			}
 		}
 	}
@@ -156,103 +152,57 @@ class ForumController {
 
  
 	
-	async getThreads (req, res) {
+	async getThreads (request, reply) {
 		// console.log(req.originalUrl, req.method);
 
-		const slug = req.params['slug'];
-		const queryParams = harvestKeyValues(req.query);
+		const slug = request.params['slug'];
+		const queryParams = harvestKeyValues(request.query);
 		if (!queryParams['limit']) {
 			queryParams['limit'] = 10
 		} else {
 			queryParams['limit'] = parseInt(queryParams['limit']);
 		}
-		// ForumModel.getForumSlug(slug)
-		// 	.then( data => {
-		// 		if (data){
-		// 			ThreadModel.getThreadsByForumSlug(slug, queryParams)
-		// 				.then( data =>{
-		// 					if (data) {
-		// 						data = idToInt(data);
-		// 						// console.log('forum getThreads',data);
-		// 						return res.status(200).json(data);
-		// 					}
-		// 				})
-		// 				.catch( error => {
-		// 					console.log('--------------------------------------------');
-		// 					console.log('ERROR IN GETTING THREADS OF FORUM');
-		// 					console.log(error);
-		// 					return res.status(500).json({ message : "crash" })
-		// 				});	
-		// 		} else {
-		// 			return res.status(404).json({ message : "Can't find forum" });
-		// 		}
-		// 	})
-		// 	.catch( error => {
-		// 		console.log('--------------------------------------------');
-		// 		console.log('ERROR IN GETTING FORUM BY SLUG');
-		// 		console.log(error);
-		// 		return res.status(500).json({ message : "crash" })
-		// 	});	
 
 		let result = await ThreadModel.getThreadsByForumSlug(slug, queryParams);
 		result = idToInt(result);
 		if (!result || !result.length) {
             const forum = await ForumModel.getForumSlug(slug);
             if (!forum) {
-                return res.status(404).json({ mesage : 'cant find forum' });
+                return reply.status(404).send({ mesage : 'cant find forum' });
             } else {
-                return res.status(200).json(result);
+                return reply.status(200).send(result);
             }
 		}
-		return res.status(200).json(result);
+		return reply.status(200).send(result);
 
 	}
 
-	async getUsers (req, res) {
+	async getUsers (request, reply) {
 		// console.log(req.originalUrl, req.method);
 
-		const slug = req.params['slug'];
-		const queryParams = harvestKeyValues(req.query);
+		const slug = request.params['slug'];
+		const queryParams = harvestKeyValues(request.query);
 		if (!queryParams['limit']) {
 			queryParams['limit'] = 10
 		} else {
 			queryParams['limit'] = parseInt(queryParams['limit']);
 		}
 		queryParams.desc = queryParams.desc === 'true';
-		// let forum;
-		// try {
-		// 	forum = await ForumModel.getForumBySlug(slug);
-		// } catch (error) {
-		// 	console.log('--------------------------------------------');
-		// 	console.log('ERROR IN GETTING FORUM BY SLUG');
-		// 	console.log(error);
-		// 	return res.status(500).json({ message : "crash" })
-		// }
 
-		// if (!forum) {
-		// 	return res.status(404).json({ message : "Can't find forum" });
-		// } 
-
-		// try {
 		let result = await ForumModel.getUsers(slug, queryParams);
 
 		if (!result || !result.length) {
             const forum = await ForumModel.getForumSlug(slug);
             if (!forum) {
-                return res.status(404).json({ mesage : 'cant find forum' });
+                return reply.status(404).send({ mesage : 'cant find forum' });
             } else {
-                return res.status(200).json(result);
+                return reply.status(200).send(result);
             }
 		}
-		// } catch (error) {
-		// 	console.log('--------------------------------------------');
-		// 	console.log('ERROR IN GETTING USERS IN FORUM');
-		// 	console.log(error);
-		// 	return res.status(500).json({ message : "crash" })
-		// }
+
 		result = forumSerializer(result);
 		// console.log('forum getUsers',result);
-		return res.status(200).json(result);
+		return reply.status(200).send(result);
 
 	} 
 }
