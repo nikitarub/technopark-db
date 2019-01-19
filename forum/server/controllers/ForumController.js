@@ -10,7 +10,6 @@ import 'babel-polyfill';
 class ForumController {
 
 	async createForum (request, reply) {
-		// console.log(req.originalUrl, req.method);
 		let user = request.body['user'];
 		const slug = request.body['slug'];
 		const title = request.body['title'];
