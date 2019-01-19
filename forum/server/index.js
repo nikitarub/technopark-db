@@ -1,4 +1,3 @@
-// import express from 'express';
 const fastify = require('fastify')({
   logger: false
 });
@@ -34,12 +33,11 @@ fastify.post('/api/service/clear', async (request, reply) => {
 });
 
 
-fastify.addContentTypeParser('application/json', { parseAs: 'string' }, function (req, body, done) {
+fastify.addContentTypeParser('application/json', { parseAs: 'string' }, function (request, body, done) {
     try {
       var json = JSON.parse(body)
       done(null, json)
     } catch (err) {
-    //   err.statusCode = 400
       done(null, undefined);
     }
   });
@@ -47,25 +45,3 @@ fastify.addContentTypeParser('application/json', { parseAs: 'string' }, function
 fastify.listen(port, (err,address) => {
 	console.log(`Server listening on port ${port}`);
 });
-
-
-
-
-// const app = express();
-
-// app.use(express.json());
-
-// app.use('/api/user', userRouter);
-// app.use('/api/forum', forumRouter);
-// app.use('/api/thread', threadRouter);
-// app.use('/api/post', postRouter);
-// app.use('/api/service', serviceRouter);
-// app.get('/', () => {
-//   console.log('hello');
-// })
-
-
-// const port = process.env.PORT || 5000;
-// app.listen(port, () => {
-//     console.log(`Server listening on port ${port}`);
-// });
