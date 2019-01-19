@@ -7,10 +7,10 @@ import { createPostsLoop } from './ControllerUtils.js';
 
 class ThreadController {
 
-    async createPost (req, res){
-        // console.log(req.originalUrl, req.method);
+    async createPost (request, reply){
+        // console.log(request.originalUrl, request.method);
 
-        let slugOrId = req.params['slug_or_id'];
+        let slugOrId = request.params['slug_or_id'];
         let thread;
         if (/^\d+$/.test(slugOrId)) {
             try {
@@ -19,7 +19,7 @@ class ThreadController {
                 console.log('--------------------------------------------');
                 console.log(error);
                 console.log('ERROR IN GETTING THREAD BY ID');
-                return res.status(500).json({ message : "crash" });
+                return reply.status(500).send({ message : "crash" });
             }
         } else {
             try {
@@ -28,24 +28,24 @@ class ThreadController {
                 console.log('--------------------------------------------');
                 console.log(error);
                 console.log('ERROR IN GETTING THREAD BY slug');
-                return res.status(500).json({ message : "crash" });
+                return reply.status(500).send({ message : "crash" });
             }
         }
 
         if (!thread) {
-            return res.status(404).json({ mesage : 'cant find thread' });
+            return reply.status(404).send({ mesage : 'cant find thread' });
         }
-        createPostsLoop(req,res, thread);
+        createPostsLoop(request,reply, thread);
     }
 
     
-    async voteForThread (req ,res) {
-		// console.log(req.originalUrl, req.method);
+    async voteForThread (request, reply) {
+		// console.log(request.originalUrl, request.method);
 
-        const slugOrId = req.params['slug_or_id'];
-        const voiceValue = req.body.voice;
+        const slugOrId = request.params['slug_or_id'];
+        const voiceValue = request.body.voice;
 
-        let author = req.body.nickname;
+        let author = request.body.nickname;
 
         let thread;
         if (/^\d+$/.test(slugOrId)) {
@@ -55,7 +55,7 @@ class ThreadController {
                 console.log('--------------------------------------------');
                 console.log(error);
                 console.log('ERROR IN GETTING THREAD BY ID');
-                return res.status(500).json({ message : "crash" });
+                return reply.status(500).send({ message : "crash" });
             }
         } else {
             try {
@@ -64,12 +64,12 @@ class ThreadController {
                 console.log('--------------------------------------------');
                 console.log(error);
                 console.log('ERROR IN GETTING THREAD BY slug');
-                return res.status(500).json({ message : "crash" });
+                return reply.status(500).send({ message : "crash" });
             }
         }
 
         if (!thread) {
-            return res.status(404).json({ mesage : 'cant find thread' });
+            return reply.status(404).send({ mesage : 'cant find thread' });
         }
 
         const votedData = await VoteModel.vote(voiceValue, thread.id, author);
@@ -82,16 +82,16 @@ class ThreadController {
             try {
                 author = await UserModel.getUserNickname(author);
                 if (!author) {
-                    return res.status(404).json({ message : 'cant find author' }); 
+                    return reply.status(404).send({ message : 'cant find author' }); 
                 } else {
                     thread.id = parseInt(thread.id);
-                    return res.status(200).json(thread);
+                    return reply.status(200).send(thread);
                 }
             } catch (error) {
                 console.log('--------------------------------------------');
                 console.log('ERROR IN GETTING USER BY NICKNAME');
                 console.log(error);
-                return res.status(500).json({ message : "crash" })
+                return reply.status(500).send({ message : "crash" })
             }
         }
 
@@ -102,33 +102,33 @@ class ThreadController {
             console.log('--------------------------------------------');
             console.log(error);
             console.log('ERROR IN incrementing votes in thread');
-            return res.status(500).json({ message : "crash" }); 
+            return reply.status(500).send({ message : "crash" }); 
         }
 
         result.id = parseInt(result.id);
-        return res.status(200).json(result);
+        return reply.status(200).send(result);
     }
 
-    getDetails (req, res) {
-        // console.log(req.originalUrl, req.method);
+    getDetails (request, reply) {
+        // console.log(request.originalUrl, request.method);
 
-        const slugOrId = req.params['slug_or_id'];
+        const slugOrId = request.params['slug_or_id'];
         if (/^\d+$/.test(slugOrId)) {
             ThreadModel.getThreadById(parseInt(slugOrId))
                 .then( thread => {
                     if (thread) {
                         thread.id = parseInt(thread.id);
                         // console.log('thread getDetails', thread);
-                        return res.status(200).json(thread);
+                        return reply.status(200).send(thread);
                     } else {
-                        return res.status(404).json({ mesage : 'cant find thread' });
+                        return reply.status(404).send({ mesage : 'cant find thread' });
                     }
                 })
                 .catch( error => {
                     console.log('--------------------------------------------');
                     console.log(error);
                     console.log('ERROR IN GETTING THREAD BY ID');
-                    return res.status(500).json({ message : "crash" });
+                    return reply.status(500).send({ message : "crash" });
                 });
         } else {
             ThreadModel.getThreadBySlug(slugOrId)
@@ -136,24 +136,24 @@ class ThreadController {
                     if (thread) {
                         thread.id = parseInt(thread.id);
                         // console.log('thread getDetails', thread);
-                        return res.status(200).json(thread);
+                        return reply.status(200).send(thread);
                     } else {
-                        return res.status(404).json({ mesage : 'cant find thread' });
+                        return reply.status(404).send({ mesage : 'cant find thread' });
                     }
                 })
                 .catch( error => {
                     console.log('--------------------------------------------');
                     console.log(error);
                     console.log('ERROR IN GETTING THREAD BY SLUG');
-                    return res.status(500).json({ message : "crash" });
+                    return reply.status(500).send({ message : "crash" });
                 }); 
         }
     }
 
-    async getPosts(req, res) {
-        // console.log(req.originalUrl, req.method);
+    async getPosts(request, reply) {
+        // console.log(request.originalUrl, request.method);
 
-        const queryParams = harvestKeyValues(req.query);
+        const queryParams = harvestKeyValues(request.query);
         let result = [];
 		if (!queryParams['limit']) {
 			queryParams['limit'] = 10
@@ -163,7 +163,7 @@ class ThreadController {
         queryParams['desc'] = queryParams['desc'] === 'true';
         queryParams['since'] = parseInt(queryParams['since']);
 
-        const slugOrId = req.params['slug_or_id'];
+        const slugOrId = request.params['slug_or_id'];
         let isId;
         if (/^\d+$/.test(slugOrId)) {
             isId = true;
@@ -183,9 +183,9 @@ class ThreadController {
         if (!result || !result.length) {
             const thread = isId ? await ThreadModel.getThreadById(parseInt(slugOrId)) : await ThreadModel.getThreadBySlug(slugOrId);
             if (!thread) {
-                return res.status(404).json({ mesage : 'cant find thread' });
+                return reply.status(404).send({ mesage : 'cant find thread' });
             } else {
-                return res.status(200).json(result);
+                return reply.status(200).send(result);
             }
         }
 
@@ -202,14 +202,14 @@ class ThreadController {
             
             return resPost;
         })
-        return res.status(200).json(result);
+        return reply.status(200).send(result);
     }
 
-    async updateThread (req, res) {
-        // console.log(req.originalUrl, req.method);
+    async updateThread (request, reply) {
+        // console.log(request.originalUrl, request.method);
 
-        const slugOrId = req.params['slug_or_id'];
-        const newData = req.body;
+        const slugOrId = request.params['slug_or_id'];
+        const newData = request.body;
         const keyValues = harvestKeyValues(newData);
         const columns = harvestColumns(newData);
         let thread;
@@ -220,7 +220,7 @@ class ThreadController {
                 console.log('--------------------------------------------');
                 console.log(error);
                 console.log('ERROR IN GETTING THREAD BY ID');
-                return res.status(500).json({ message : "crash" });
+                return reply.status(500).send({ message : "crash" });
             }
         } else {
             try {
@@ -229,19 +229,19 @@ class ThreadController {
                 console.log('--------------------------------------------');
                 console.log(error);
                 console.log('ERROR IN GETTING THREAD BY ID');
-                return res.status(500).json({ message : "crash" });
+                return reply.status(500).send({ message : "crash" });
             }
         }
 
         if (!thread) {
-            return res.status(404).json({ mesage : 'cant find thread' });
+            return reply.status(404).send({ mesage : 'cant find thread' });
         }
 
         // если было прислано пустое body
         // или все данные были присланы как пустые строки
         if (!Object.values(newData).length || !columns.length) {
             thread.id = parseInt(thread.id);
-            return res.status(200).json(thread);
+            return reply.status(200).send(thread);
         }
 
         let result
@@ -251,14 +251,14 @@ class ThreadController {
             console.log('--------------------------------------------');
             console.log(error);
             console.log('ERROR IN UPDATING THREAD');
-            return res.status(500).json({ message : "crash" });
+            return reply.status(500).send({ message : "crash" });
         }
 
         if (result === 'conflict') {
-            return res.status(409).json({ message : 'already existed data'});
+            return reply.status(409).send({ message : 'already existed data'});
         } else {
             result.id = parseInt(result.id);
-            return res.status(200).json(result);
+            return reply.status(200).send(result);
         }
 
     }
