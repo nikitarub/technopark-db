@@ -8,10 +8,10 @@ import 'babel-polyfill';
 
 
 class PostController {
-    async getDetails (req, res) {
-        // console.log(req.originalUrl, req.method);
+    async getDetails (request, reply) {
+        // console.log(request.originalUrl, request.method);
 
-        const postId = req.params['id'];
+        const postId = request.params['id'];
         const result = {};
 
         let postData;
@@ -24,10 +24,10 @@ class PostController {
         }
 
         if (!postData) {
-            return res.status(404).json({ message : 'cant find post' });
+            return reply.status(404).send({ message : 'cant find post' });
         }
 
-        const relatedTo = req.query['related'];
+        const relatedTo = request.query['related'];
         let entity;
         if (relatedTo) {
             const relatedEntities = relatedTo.split(',');
@@ -69,14 +69,14 @@ class PostController {
         postData.parent = parseInt(postData.parent);
         result.post = postData;
         // console.log('post getDetails',result);
-        return res.status(200).json(result);
+        return reply.status(200).send(result);
     }
 
-    async updateDetails (req, res) {
-        // console.log(req.originalUrl, req.method);
+    async updateDetails (request, reply) {
+        // console.log(request.originalUrl, request.method);
 
-        const postId = req.params['id'];
-        const newData = req.body;
+        const postId = request.params['id'];
+        const newData = request.body;
 
         let postData;
         try {
@@ -88,7 +88,7 @@ class PostController {
         }
 
         if (!postData) {
-            return res.status(404).json({ message : 'cant find post' });
+            return reply.status(404).send({ message : 'cant find post' });
         }
 
         // если было прислано пустое body
@@ -97,7 +97,7 @@ class PostController {
             postData.id = parseInt(postData.id);
             postData.thread = parseInt(postData.thread);
             postData.parent ? parseInt(postData.parent) : postData.parent;    
-            return res.status(200).json(postData);
+            return reply.status(200).send(postData);
         }
 
         let result;
@@ -111,18 +111,18 @@ class PostController {
             }
     
             if (result === 'conflict') {
-                return res.status(409).json({ message : 'already existed data'});
+                return reply.status(409).send({ message : 'already existed data'});
             } else {
                 result.id = parseInt(result.id);
                 result.thread = parseInt(result.thread);
                 result.parent ? parseInt(result.parent) : result.parent;   
-                return res.status(200).json(result);
+                return reply.status(200).send(result);
             }
         } else {
             postData.id = parseInt(postData.id);
             postData.thread = parseInt(postData.thread);
             postData.parent ? parseInt(postData.parent) : postData.parent; 
-            return res.status(200).json(postData);
+            return reply.status(200).send(postData);
         }
     }
 

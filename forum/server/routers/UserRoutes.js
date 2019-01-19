@@ -1,10 +1,9 @@
-import express from 'express'
 import UserController from '../controllers/UserController.js';
 
-const userRouter = express.Router();
-
-userRouter.post('/:nickname/create', UserController.createUser);
-userRouter.post('/:nickname/profile', UserController.updateUser);
-userRouter.get('/:nickname/profile', UserController.getUser);
+async function userRouter (fastify, options) {
+    fastify.post('/api/user/:nickname/create', UserController.createUser);
+    fastify.post('/api/user/:nickname/profile', UserController.updateUser);
+	fastify.get('/api/user/:nickname/profile', UserController.getUser);
+}
 
 export default userRouter;

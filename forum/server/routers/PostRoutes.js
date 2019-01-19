@@ -1,9 +1,8 @@
-import express from 'express'
 import PostController from '../controllers/PostController.js';
 
-const postRouter = express.Router();
-
-postRouter.get('/:id/details', PostController.getDetails);
-postRouter.post('/:id/details', PostController.updateDetails);
+async function postRouter (fastify, options) {
+    fastify.get('/api/post/:id/details', PostController.getDetails);
+    fastify.post('/api/post/:id/details', PostController.updateDetails);
+}
 
 export default postRouter;
