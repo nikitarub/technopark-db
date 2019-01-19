@@ -42,6 +42,6 @@ fastify.addContentTypeParser('application/json', { parseAs: 'string' }, function
     }
   });
 
-fastify.listen(port, (err,address) => {
+fastify.listen(port, '0.0.0.0',(err,address) => {
 	console.log(`Server listening on port ${port}`);
 });
